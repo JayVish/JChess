@@ -7,6 +7,9 @@ PennKey: _______
 =: Core Concepts :=
 ===================
 
+Image Citations:
+Chess Pieces: https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
+
 - List the four core concepts, the features they implement, and why each feature
   is an appropriate use of the concept. Incorporate the feedback you got after
   submitting your proposal.

@@ -1,8 +1,10 @@
-/**
+package model; /**
  * CIS 120 HW09 - TicTacToe Demo
  * (c) University of Pennsylvania
  * Created by Bayley Tuch, Sabrina Green, and Nicolas Corona in Fall 2020.
  */
+
+import model.pieces.*;
 
 /**
  * This class is a model for TicTacToe.  
@@ -21,9 +23,9 @@
  * Run this file to see the main method play a game of TicTacToe,
  * visualized with Strings printed to the console.
  */
-public class TicTacToe {
+public class Chess {
 
-    private int[][] board;
+    private Piece[][] board;
     private int numTurns;
     private boolean player1;
     private boolean gameOver;
@@ -31,7 +33,7 @@ public class TicTacToe {
     /**
      * Constructor sets up game state.
      */
-    public TicTacToe() {
+    public Chess() {
         reset();
     }
 
@@ -49,15 +51,15 @@ public class TicTacToe {
      * @return whether the turn was successful
      */
     public boolean playTurn(int c, int r) {
-        if (board[r][c] != 0 || gameOver) {
-            return false;
-        }
+//        if (board[r][c] != 0 || gameOver) {
+//            return false;
+//        }
 
-        if (player1) {
-            board[r][c] = 1;
-        } else {
-            board[r][c] = 2;
-        }
+//        if (player1) {
+//            board[r][c] = 1;
+//        } else {
+//            board[r][c] = 2;
+//        }
 
         numTurns++;
         if (checkWinner() == 0) {
@@ -75,19 +77,19 @@ public class TicTacToe {
      */
     public int checkWinner() {
         // Check horizontal win
-        for (int i = 0; i < board.length; i++) {
-            if (board[i][0] == board[i][1] &&
-                board[i][1] == board[i][2] &&
-                board[i][1] != 0
-                ) {
-                 gameOver = true;
-                if (player1) {
-                    return 1;
-                } else {
-                    return 2;
-                }
-            }
-        }
+//        for (int i = 0; i < board.length; i++) {
+//            if (board[i][0] == board[i][1] &&
+//                board[i][1] == board[i][2] &&
+////                board[i][1] != 0
+//                ) {
+//                 gameOver = true;
+//                if (player1) {
+//                    return 1;
+//                } else {
+//                    return 2;
+//                }
+//            }
+//        }
         
         if (numTurns >= 9) {
             gameOver = true;
@@ -120,7 +122,42 @@ public class TicTacToe {
      * reset (re-)sets the game state to start a new game.
      */
     public void reset() {
-        board = new int[3][3];
+        board = new Piece[8][8];
+
+        Side currSideToSet;
+
+        // init black's pieces
+        currSideToSet = Side.BLACK;
+
+        board[0][0] = new Rook(currSideToSet);
+        board[0][1] = new Knight(currSideToSet);
+        board[0][2] = new Bishop(currSideToSet);
+        board[0][3] = new Queen(currSideToSet);
+        board[0][4] = new King(currSideToSet);
+        board[0][5] = new Bishop(currSideToSet);
+        board[0][6] = new Knight(currSideToSet);
+        board[0][7] = new Rook(currSideToSet);
+
+        for (int c = 0; c < 8; c++) {
+            board[1][c] = new Pawn(currSideToSet);
+        }
+
+        // init white's pieces
+        currSideToSet = Side.WHITE;
+
+        board[7][0] = new Rook(currSideToSet);
+        board[7][1] = new Knight(currSideToSet);
+        board[7][2] = new Bishop(currSideToSet);
+        board[7][3] = new Queen(currSideToSet);
+        board[7][4] = new King(currSideToSet);
+        board[7][5] = new Bishop(currSideToSet);
+        board[7][6] = new Knight(currSideToSet);
+        board[7][7] = new Rook(currSideToSet);
+
+        for (int c = 0; c < 8; c++) {
+            board[6][c] = new Pawn(currSideToSet);
+        }
+
         numTurns = 0;
         player1 = true;
         gameOver = false;
@@ -148,8 +185,12 @@ public class TicTacToe {
      *         game board.  0 = empty, 1 = Player 1,
      *         2 = Player 2
      */
-    public int getCell(int c, int r) {
-        return board[r][c];
+    public String getCell(int r, int c) {
+        if (board[r][c] != null) {
+            return board[r][c].getSpriteFilePath();
+        } else {
+            return null;
+        }
     }
     
     /**
@@ -167,36 +208,36 @@ public class TicTacToe {
      * method in your console.
      */
     public static void main(String[] args) {
-        TicTacToe t = new TicTacToe();
+        Chess c = new Chess();
 
-        t.playTurn(1, 1);
-        t.printGameState();
+        c.playTurn(1, 1);
+        c.printGameState();
         
-        t.playTurn(0, 0);
-        t.printGameState();
+        c.playTurn(0, 0);
+        c.printGameState();
 
-        t.playTurn(0, 2);
-        t.printGameState();
+        c.playTurn(0, 2);
+        c.printGameState();
         
-        t.playTurn(2, 0);
-        t.printGameState();
+        c.playTurn(2, 0);
+        c.printGameState();
 
-        t.playTurn(1, 0);
-        t.printGameState();
+        c.playTurn(1, 0);
+        c.printGameState();
         
-        t.playTurn(1, 2);
-        t.printGameState();
+        c.playTurn(1, 2);
+        c.printGameState();
         
-        t.playTurn(0, 1);
-        t.printGameState();
+        c.playTurn(0, 1);
+        c.printGameState();
         
-        t.playTurn(2, 2);
-        t.printGameState();
+        c.playTurn(2, 2);
+        c.printGameState();
         
-        t.playTurn(2, 1);
-        t.printGameState();
+        c.playTurn(2, 1);
+        c.printGameState();
         System.out.println();
         System.out.println();
-        System.out.println("Winner is: " + t.checkWinner());
+        System.out.println("Winner is: " + c.checkWinner());
     }
 }

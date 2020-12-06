@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Chess/Chess.iml" filepath="$PROJECT_DIR$/Chess/Chess.iml" />
       <module fileurl="file://$PROJECT_DIR$/MushroomOfDoom/MushroomOfDoom.iml" filepath="$PROJECT_DIR$/MushroomOfDoom/MushroomOfDoom.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TicTacToe/TicTacToe.iml" filepath="$PROJECT_DIR$/TicTacToe/TicTacToe.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/hw09.iml" filepath="$PROJECT_DIR$/.idea/hw09.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/hw09_chess.iml" filepath="$PROJECT_DIR$/.idea/hw09_chess.iml" />
     </modules>
   </component>
 </project>

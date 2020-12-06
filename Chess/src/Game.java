@@ -28,7 +28,7 @@ public class Game implements Runnable {
         // NOTE: the 'final' keyword denotes immutability even for local variables.
 
         // Top-level frame in which game components live
-        final JFrame frame = new JFrame("TicTacToe");
+        final JFrame frame = new JFrame("Chess");
         frame.setLocation(300, 300);
 
         // Status panel
