@@ -10,6 +10,8 @@ public class Translate extends ChessMove {
     public Translate(Piece p, ChessBoard board) {
         super(p, board);
 
+        // test
+
         this.board = board;
     }
 
