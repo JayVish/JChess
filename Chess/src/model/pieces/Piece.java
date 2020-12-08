@@ -58,6 +58,18 @@ public abstract class Piece {
 
     public abstract List<ChessMove> getChessMoves();
 
+    public boolean makeChessMove(Square target) {
+        List<ChessMove> possibleMoves = getChessMoves();
+        for (ChessMove m : possibleMoves) {
+            if (m.getNewLocation().equals(target)) {
+                m.makeMove();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public String getSpriteFilePath() {
         return "Sprites/" + stringOfSide() + "/" + getPieceName()+".png";
     }

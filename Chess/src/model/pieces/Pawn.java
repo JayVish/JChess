@@ -4,11 +4,12 @@ import model.ChessBoard;
 import model.Square;
 import model.moves.Capture;
 import model.moves.ChessMove;
+import model.moves.Translate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pawn extends Piece implements Capture {
+public class Pawn extends Piece {
 
     public Pawn(int s, int r, int c) {
         super(s, r, c);
@@ -19,8 +20,13 @@ public class Pawn extends Piece implements Capture {
         return "Pawn";
     }
 
-    public List<Square> translate(Piece[][] board) {
+    @Override
+    public List<ChessMove> getChessMoves() {
         return null;
+    }
+
+    public List<Square> translate(Piece[][] board) {
+
         // how to check if this move creates a check
         // EVERY move needs to see if a discovered check is created
 
@@ -39,11 +45,13 @@ public class Pawn extends Piece implements Capture {
         List<ChessMove> validMoves = new ArrayList<>();
         int moveAmount;
         Square currSquare;
+        ChessMove currMove;
         // north
         moveAmount = 1;
         currSquare = board.getVertical(getSide(), getSquare(), moveAmount);
         if (board.inBounds(currSquare) && board.getSquare(currSquare) == null) {
            // check if check is created
+            // currMove = new Translate(this, board);
         }
 
         return validMoves;

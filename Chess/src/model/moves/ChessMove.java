@@ -14,9 +14,10 @@ public abstract class ChessMove {
     private ChessBoard board;
     private Piece capturedPiece;
 
-    public ChessMove(Piece p, ChessBoard board) {
+    public ChessMove(Piece p, Square target, ChessBoard board) {
         this.p = p;
         this.oldLoc = new Square(p.getR(), p.getC());
+        this.newLoc = new Square(target);
         this.board = board;
     }
 

@@ -170,13 +170,19 @@ public class ChessBoard {
         currentPlayer = 1 - currentPlayer;
     }
 
-    // chess board is responsible for game states: check, checkmate, and draw
+    // make move
+    public boolean makeMove(Piece p, int r, int c) {
+        if (p.makeChessMove(new Square(r, c))) {
+            flipPlayer();
+            return true;
+        }
 
-    public boolean isPlayerInStalemate(int side) {
-        return !isPlayerInCheck(side);
+         return false;
     }
 
-    public boolean isPlayerInCheckmate(int side) {
+    // chess board is responsible for game states: check, checkmate, and draw
+
+    public boolean doesPlayerHaveMove(int side) {
         for (Piece p : activePieces.get(side)) {
             if (p.getChessMoves().size() > 0) {
                 return false;
@@ -184,6 +190,14 @@ public class ChessBoard {
         }
 
         return true;
+    }
+
+    public boolean isPlayerInStalemate(int side) {
+        return !isPlayerInCheck(side) && !doesPlayerHaveMove(side);
+    }
+
+    public boolean isPlayerInCheckmate(int side) {
+        return isPlayerInCheck(side) && doesPlayerHaveMove(side);
     }
 
     public boolean isPlayerInCheck(int side) {
