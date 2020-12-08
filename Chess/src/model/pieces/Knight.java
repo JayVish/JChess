@@ -4,9 +4,8 @@ import model.Side;
 
 public class Knight extends Piece {
 
-    public Knight(Side s) {
-        super(s);
-
+    public Knight(int s, int r, int c) {
+        super(s, r, c);
     }
 
     @Override

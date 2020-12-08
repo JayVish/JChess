@@ -1,11 +1,9 @@
 package model.pieces;
 
-import model.Side;
-
 public class King extends Piece {
 
-    public King(Side s) {
-        super(s);
+    public King(int s, int r, int c) {
+        super(s, r, c);
     }
 
     @Override

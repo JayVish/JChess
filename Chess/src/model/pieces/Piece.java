@@ -1,23 +1,38 @@
 package model.pieces;
 
-import model.Side;
+import model.Square;
+import model.moves.ChessMove;
+
+import java.io.Serializable;
+import java.util.List;
 
 public abstract class Piece {
-
-    private String side;
+    private int side;
     private boolean hasMoved;
+    private int r;
+    private int c;
 
-    Piece(Side s) {
-        switch (s) {
-            case BLACK:
-                side = "Black";
-                break;
-            case WHITE:
-                side = "White";
-                break;
-        }
+    Piece(int s, int r, int c) {
+        this.side = s;
+        this.r = r;
+        this.c = c;
+        this.hasMoved = false;
+    }
 
-        hasMoved = false;
+    protected int getSide() {
+        return side;
+    }
+
+    public Square getSquare() {
+        return new Square(this.r,  this.c);
+    }
+
+    public int getR() {
+        return this.r;
+    }
+
+    public int getC() {
+        return this.c;
     }
 
     public abstract String getPieceName();
@@ -30,7 +45,20 @@ public abstract class Piece {
         return hasMoved;
     }
 
+    public String stringOfSide() {
+        switch (side) {
+            case 0:
+                return "Black";
+            case 1:
+                return "White";
+            default:
+                return "";
+        }
+    }
+
+    public abstract List<ChessMove> getChessMoves();
+
     public String getSpriteFilePath() {
-        return "Sprites/" + side + "/" + getPieceName()+".png";
+        return "Sprites/" + stringOfSide() + "/" + getPieceName()+".png";
     }
 }

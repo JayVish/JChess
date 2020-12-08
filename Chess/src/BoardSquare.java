@@ -6,25 +6,35 @@ import java.io.IOException;
 
 public class BoardSquare {
 
-    private Color color;
+    private Color trueColor;
+    private Color currColor;
     private int xLoc;
     private int yLoc;
     private int dim;
 
     public BoardSquare(boolean isLight, int dim, int xLoc, int yLoc) {
         if (isLight) {
-            color = Constants.LIGHT;
+            trueColor = Constants.LIGHT;
         } else {
-            color = Constants.DARK;
+            trueColor = Constants.DARK;
         }
+        currColor = trueColor;
 
         this.dim = dim;
         this.xLoc = xLoc;
         this.yLoc = yLoc;
     }
 
+    public void highlightSquare() {
+        currColor = Color.GREEN;
+    }
+
+    public void dehighlightSquare() {
+        currColor = trueColor;
+    }
+
     public void draw(Graphics g) {
-        g.setColor(color);
+        g.setColor(currColor);
         g.fillRect(xLoc, yLoc, dim, dim);
     }
 

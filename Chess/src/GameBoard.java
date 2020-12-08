@@ -2,6 +2,7 @@ import model.Chess;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Objects;
 import javax.swing.*;
 
 /**
@@ -22,10 +23,13 @@ public class GameBoard extends JComponent {
 
     private Chess chess; // model for the game
     private JLabel status; // current status text
-    private BoardSquare2[][] board; // board to paint
+    private BoardSquare[][] board; // board to paint
+    private Mode currMode; // curr state in game
+    private Square highlightedSquare;
 
     // Game constants
     public static final int BOARD_DIM = 800;
+    public static final int SQUARE_DIM = BOARD_DIM/8;
 
     /**
      * Initializes the game board.
@@ -58,6 +62,7 @@ public class GameBoard extends JComponent {
             }
         });
 
+        addMouseListener(new Mouse());
     }
 
     /**
@@ -67,44 +72,12 @@ public class GameBoard extends JComponent {
         chess.reset();
         status.setText("Player 1's Turn");
 
-        setLayout(new GridLayout(8, 8));
-//        JButton b1 = new JButton("hello");
-//        JButton b2 = new JButton("hello 2");
-//
-//        add(b1);
-//        add(b2);
-//
-//        b1.addMouseListener(new MouseAdapter() {
-//            public void mousePressed(MouseEvent evt) {
-//                System.out.println("success");
-//            }
-//        });
-//        b1.addMouseListener(new MouseAdapter() {
-//            public void mousePressed(MouseEvent evt) {
-//                System.out.println("success 2");
-//            }
-//        });
-        // add(new BoardSquare2(true, 100, ))
-
-        // add(new BoardSquare2(false, 100));
-        // add(new BoardSquare2(false, 100));
-
         // generate initial colored board
-        board = new BoardSquare2[8][8];
-        int squareDim = BOARD_DIM/8;
+        board = new BoardSquare[8][8];
         for (int r = 0; r < 8; r++) {
             boolean isLight = r%2 == 0;
             for (int c = 0; c < 8; c++) {
-                board[r][c] = new BoardSquare2(isLight, squareDim);
-                board[r][c].setPiece(chess.getCell(r, c));
-                add(board[r][c]);
-
-                board[r][c].addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        System.out.println("Square clicked");
-                    }
-                });
+                board[r][c] = new BoardSquare(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM);
 
                 isLight = !isLight;
             }
@@ -114,6 +87,9 @@ public class GameBoard extends JComponent {
 
         // Makes sure this component has keyboard/mouse focus
         requestFocusInWindow();
+
+        // set mode
+        currMode = new MoveStartMode();
     }
 
     /**
@@ -150,13 +126,17 @@ public class GameBoard extends JComponent {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-//        // Draw board squares
-//        for (int r = 0; r < 8; r++) {
-//            for (int c = 0; c < 8; c++) {
-//                String piece = chess.getCell(r, c);
-//                board[r][c].setPiece(piece);
-//            }
-//        }
+        // Draw board squares
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                board[r][c].draw(g);
+
+                String piece = chess.getCell(r, c);
+                if (piece != null) {
+                    board[r][c].drawPiece(g, piece);
+                }
+            }
+        }
     }
 
     /**
@@ -165,5 +145,123 @@ public class GameBoard extends JComponent {
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(BOARD_DIM, BOARD_DIM);
+    }
+
+    private Square getSquareFromPoint(Point p) {
+        return new Square(p.y/SQUARE_DIM, p.x/SQUARE_DIM);
+    }
+
+    interface Mode extends MouseListener, MouseMotionListener { }
+
+    class MoveStartMode extends MouseAdapter implements Mode {
+        public MoveStartMode() {
+            // dehighlight previously chosen square if necessary
+            if (highlightedSquare != null) {
+                board[highlightedSquare.getR()][highlightedSquare.getC()].dehighlightSquare();
+                repaint();
+            }
+        }
+
+        public void mousePressed(MouseEvent e) {
+            Point p = e.getPoint();
+            Square clicked = getSquareFromPoint(p);
+
+            if (chess.canMovePiece(clicked.getR(), clicked.getC())) {
+
+                board[clicked.getR()][clicked.getC()].highlightSquare();
+                currMode = new MoveEndMode(clicked);
+                highlightedSquare = clicked;
+
+                repaint();
+            }
+        }
+    }
+
+    class MoveEndMode extends MouseAdapter implements Mode {
+        Square start;
+
+        // location of chosen piece to move
+        MoveEndMode (Square start) {
+            this.start = start;
+        }
+
+        public void mousePressed(MouseEvent e) {
+            Point p = e.getPoint();
+            Square clicked = getSquareFromPoint(p);
+
+//            if (chess.isValidMove(start.getR(), start.getC(), clicked.getR(), clicked.getC())) {
+
+            chess.makeMove(start.getR(), start.getC(), clicked.getR(), clicked.getC());
+
+            // is game over?
+            if (chess.isGameOver()) {
+                currMode = new GameOverMode(chess.getGameStatus());
+            } else {
+                // reset move regardless of if valid
+                currMode = new MoveStartMode();
+            }
+        }
+    }
+
+    class GameOverMode extends MouseAdapter implements Mode {
+        public GameOverMode(int gameStatus) {
+            switch (gameStatus) {
+                case 0: System.out.println("White Wins!");
+                case 1: System.out.println("Black Wins!");
+                case 2: System.out.println("Stalemate!");
+                case 3: System.out.println("The game is ongoing.");
+            }
+        }
+    }
+
+    private class Mouse extends MouseAdapter {
+
+        public void mousePressed(MouseEvent arg0) {
+            currMode.mousePressed(arg0);
+            repaint();
+        }
+
+        public void mouseDragged(MouseEvent arg0) {
+            currMode.mouseDragged(arg0);
+            repaint();
+        }
+
+        public void mouseReleased(MouseEvent arg0) {
+            currMode.mouseReleased(arg0);
+            repaint();
+        }
+    }
+
+
+    private class Square {
+        private int r;
+        private int c;
+
+        public Square(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+
+        public int getR() {
+            return r;
+        }
+
+        public int getC() {
+            return c;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Square square = (Square) o;
+            return r == square.r &&
+                    c == square.c;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(r, c);
+        }
     }
 }

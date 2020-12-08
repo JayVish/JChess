@@ -1,12 +1,9 @@
 package model.pieces;
 
-import model.Side;
-
 public class Bishop extends Piece {
 
-    public Bishop(Side s) {
-        super(s);
-
+    public Bishop(int s, int r, int c) {
+        super(s, r, c);
     }
 
     @Override

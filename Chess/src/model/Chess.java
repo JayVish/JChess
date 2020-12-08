@@ -7,7 +7,7 @@ package model; /**
 import model.pieces.*;
 
 /**
- * This class is a model for TicTacToe.  
+ * This class is a model for Chess.
  * 
  * This game adheres to a Model-View-Controller design framework.
  * This framework is very effective for turn-based games.  We
@@ -27,7 +27,7 @@ public class Chess {
 
     private Piece[][] board;
     private int numTurns;
-    private boolean player1;
+    private boolean playerWhite;
     private boolean gameOver;
 
     /**
@@ -63,7 +63,7 @@ public class Chess {
 
         numTurns++;
         if (checkWinner() == 0) {
-            player1 = !player1;
+            playerWhite = !playerWhite;
         }
         return true;
     }
@@ -124,42 +124,42 @@ public class Chess {
     public void reset() {
         board = new Piece[8][8];
 
-        Side currSideToSet;
+        int currSideToSet;
 
         // init black's pieces
-        currSideToSet = Side.BLACK;
+        currSideToSet = 1;
 
-        board[0][0] = new Rook(currSideToSet);
-        board[0][1] = new Knight(currSideToSet);
-        board[0][2] = new Bishop(currSideToSet);
-        board[0][3] = new Queen(currSideToSet);
-        board[0][4] = new King(currSideToSet);
-        board[0][5] = new Bishop(currSideToSet);
-        board[0][6] = new Knight(currSideToSet);
-        board[0][7] = new Rook(currSideToSet);
+        board[0][0] = new Rook(currSideToSet, 0, 0);
+        board[0][1] = new Knight(currSideToSet, 0, 1);
+        board[0][2] = new Bishop(currSideToSet, 0, 2);
+        board[0][3] = new Queen(currSideToSet, 0, 3);
+        board[0][4] = new King(currSideToSet, 0, 4);
+        board[0][5] = new Bishop(currSideToSet, 0, 5);
+        board[0][6] = new Knight(currSideToSet, 0, 6);
+        board[0][7] = new Rook(currSideToSet, 0, 7);
 
         for (int c = 0; c < 8; c++) {
-            board[1][c] = new Pawn(currSideToSet);
+            board[1][c] = new Pawn(currSideToSet, 1, c);
         }
 
         // init white's pieces
-        currSideToSet = Side.WHITE;
+        currSideToSet = 0;
 
-        board[7][0] = new Rook(currSideToSet);
-        board[7][1] = new Knight(currSideToSet);
-        board[7][2] = new Bishop(currSideToSet);
-        board[7][3] = new Queen(currSideToSet);
-        board[7][4] = new King(currSideToSet);
-        board[7][5] = new Bishop(currSideToSet);
-        board[7][6] = new Knight(currSideToSet);
-        board[7][7] = new Rook(currSideToSet);
+        board[7][0] = new Rook(currSideToSet, 0, 0);
+        board[7][1] = new Knight(currSideToSet, 0, 1);
+        board[7][2] = new Bishop(currSideToSet, 0, 2);
+        board[7][3] = new Queen(currSideToSet, 0, 3);
+        board[7][4] = new King(currSideToSet, 0, 4);
+        board[7][5] = new Bishop(currSideToSet, 0, 5);
+        board[7][6] = new Knight(currSideToSet, 0, 6);
+        board[7][7] = new Rook(currSideToSet, 0, 7);
 
         for (int c = 0; c < 8; c++) {
-            board[6][c] = new Pawn(currSideToSet);
+            board[6][c] = new Pawn(currSideToSet, 6, c);
         }
 
         numTurns = 0;
-        player1 = true;
+        playerWhite = true;
         gameOver = false;
     }
     
@@ -171,7 +171,7 @@ public class Chess {
      * false if it's Player 2's turn.
      */
     public boolean getCurrentPlayer() {
-        return player1;
+        return playerWhite;
     }
     
     /**
@@ -239,5 +239,41 @@ public class Chess {
         System.out.println();
         System.out.println();
         System.out.println("Winner is: " + c.checkWinner());
+    }
+
+    public boolean canMovePiece(int r, int c) {
+        return true;
+    }
+
+    public boolean isValidMove(int r1, int c1, int r2, int c2) {
+        return board[r2][c2] == null;
+    }
+
+    public void makeMove(int r1, int c1, int r2, int c2) {
+        if (!isValidMove(r1, c1, r2, c2)) return;
+
+        playerWhite = !playerWhite;
+        // throwaway logic for now
+        board[r2][c2] = board[r1][c1];
+        board[r1][c1] = null;
+    }
+
+    public boolean isInCheck(int color) {
+        return false;
+    }
+
+    public boolean isGameOver() {
+        return false;
+    }
+
+    /*
+    0: white wins
+    1: black wins
+    2: stalemate
+    3: ongoing
+     */
+    public int getGameStatus() {
+        return 0;
+
     }
 }
