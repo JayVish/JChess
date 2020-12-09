@@ -71,8 +71,11 @@ public class GameBoard extends JComponent {
      * (Re-)sets the game to its initial state.
      */
     public void reset() {
+        // clear panel
+        removeAll();
+
         chess.reset();
-        status.setText("Player 1's Turn");
+        status.setText("White's Turn");
 
         // generate initial colored board
         board2 = new BoardSquare[8][8];
@@ -210,7 +213,10 @@ public class GameBoard extends JComponent {
 
 //            if (chess.isValidMove(start.getR(), start.getC(), clicked.getR(), clicked.getC())) {
 
-            chess.makeMove(start.getR(), start.getC(), clicked.getR(), clicked.getC());
+            List<Square> changedSquares = chess.makeMove(start.getR(), start.getC(), clicked.getR(), clicked.getC());
+            for (Square s : changedSquares) {
+                board[s.getR()][s.getC()].repaint();
+            }
 
             // is game over?
             if (chess.isGameOver()) {

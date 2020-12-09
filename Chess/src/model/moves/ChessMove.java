@@ -4,6 +4,8 @@ import model.ChessBoard;
 import model.Square;
 import model.pieces.Piece;
 
+import java.util.List;
+
 public abstract class ChessMove {
 
     private Piece p;
@@ -45,6 +47,8 @@ public abstract class ChessMove {
     public Piece getCapturedPiece() {
         return capturedPiece;
     }
+
+    public abstract List<Square> getChangedSquares();
 
     public abstract void makeMove();
 

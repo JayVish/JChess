@@ -4,6 +4,9 @@ import model.ChessBoard;
 import model.Square;
 import model.pieces.Piece;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PawnTwoStep extends ChessMove {
     private ChessBoard board;
     private Piece p;
@@ -13,6 +16,15 @@ public class PawnTwoStep extends ChessMove {
 
         this.p = p;
         this.board = board;
+    }
+
+    @Override
+    public List<Square> getChangedSquares() {
+        List<Square> updatedSquares = new ArrayList<>();
+        updatedSquares.add(getOldLocation());
+        updatedSquares.add(getNewLocation());
+
+        return updatedSquares;
     }
 
     @Override
