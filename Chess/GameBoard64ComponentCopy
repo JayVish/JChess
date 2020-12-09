@@ -102,7 +102,7 @@ public class GameBoard extends JComponent {
                 board[r][c].addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        System.out.println("Square clicked");
+                        System.out.println("model.Square clicked");
                     }
                 });
 

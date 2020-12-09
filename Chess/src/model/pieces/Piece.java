@@ -1,73 +1,85 @@
 package model.pieces;
 
+import model.ChessBoard;
 import model.Square;
 import model.moves.ChessMove;
 
-import java.io.Serializable;
 import java.util.List;
 
 public abstract class Piece {
     private int side;
-    private boolean hasMoved;
-    private int r;
-    private int c;
+    private int moveCount;
+    private Square position;
 
-    Piece(int s, int r, int c) {
-        this.side = s;
-        this.r = r;
-        this.c = c;
-        this.hasMoved = false;
+    Piece(int side, int r, int c) {
+        this.side = side;
+        this.position = new Square(r, c);
+        this.moveCount = 0;
     }
 
-    protected int getSide() {
+    Piece(int side, Square loc) {
+        this.side = side;
+        this.position = new Square(loc);
+        this.moveCount = 0;
+    }
+
+    public int getSide() {
         return side;
     }
 
     public Square getSquare() {
-        return new Square(this.r,  this.c);
+        return new Square(this.getR(),  this.getC());
     }
 
     public int getR() {
-        return this.r;
+        return position.getR();
     }
 
     public int getC() {
-        return this.c;
+        return position.getC();
     }
 
     public abstract String getPieceName();
 
-    public void setPieceToMoved() {
-        hasMoved = true;
+    public void addMoveToPiece() {
+        moveCount++;
+    }
+
+    public void removeMoveFromPiece() {
+        moveCount--;
+    }
+
+    public void setPosition(Square loc) {
+        position = new Square(loc);
     }
 
     public boolean hasMoved() {
-        return hasMoved;
+        return moveCount != 0;
     }
 
     public String stringOfSide() {
         switch (side) {
             case 0:
-                return "Black";
-            case 1:
                 return "White";
+            case 1:
+                return "Black";
             default:
                 return "";
         }
     }
 
-    public abstract List<ChessMove> getChessMoves();
+    public abstract List<ChessMove> getChessMoves(ChessBoard board);
 
-    public boolean makeChessMove(Square target) {
-        List<ChessMove> possibleMoves = getChessMoves();
+    public ChessMove makeChessMove(ChessBoard board, Square target) {
+        List<ChessMove> possibleMoves = getChessMoves(board);
         for (ChessMove m : possibleMoves) {
             if (m.getNewLocation().equals(target)) {
                 m.makeMove();
-                return true;
+                return m;
             }
         }
 
-        return false;
+        return null;
     }
 
     public String getSpriteFilePath() {

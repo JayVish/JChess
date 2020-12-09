@@ -1,6 +1,10 @@
 package model.pieces;
 
+import model.ChessBoard;
 import model.Side;
+import model.moves.ChessMove;
+
+import java.util.List;
 
 public class Knight extends Piece {
 
@@ -11,5 +15,10 @@ public class Knight extends Piece {
     @Override
     public String getPieceName() {
         return "Knight";
+    }
+
+    @Override
+    public List<ChessMove> getChessMoves(ChessBoard board) {
+        return null;
     }
 }

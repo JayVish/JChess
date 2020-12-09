@@ -50,7 +50,7 @@ public class Chess {
      * @param r row to play in
      * @return whether the turn was successful
      */
-    public boolean playTurn(int c, int r) {
+    public boolean makeMove(int r1, int c1, int r2, int c2, int test) {
 //        if (board[r][c] != 0 || gameOver) {
 //            return false;
 //        }
@@ -207,39 +207,39 @@ public class Chess {
      * Run this file to see the output of this
      * method in your console.
      */
-    public static void main(String[] args) {
-        Chess c = new Chess();
-
-        c.playTurn(1, 1);
-        c.printGameState();
-        
-        c.playTurn(0, 0);
-        c.printGameState();
-
-        c.playTurn(0, 2);
-        c.printGameState();
-        
-        c.playTurn(2, 0);
-        c.printGameState();
-
-        c.playTurn(1, 0);
-        c.printGameState();
-        
-        c.playTurn(1, 2);
-        c.printGameState();
-        
-        c.playTurn(0, 1);
-        c.printGameState();
-        
-        c.playTurn(2, 2);
-        c.printGameState();
-        
-        c.playTurn(2, 1);
-        c.printGameState();
-        System.out.println();
-        System.out.println();
-        System.out.println("Winner is: " + c.checkWinner());
-    }
+//    public static void main(String[] args) {
+//        Chess c = new Chess();
+//
+//        c.makeMove(1, 1);
+//        c.printGameState();
+//
+//        c.makeMove(0, 0);
+//        c.printGameState();
+//
+//        c.makeMove(0, 2);
+//        c.printGameState();
+//
+//        c.makeMove(2, 0);
+//        c.printGameState();
+//
+//        c.makeMove(1, 0);
+//        c.printGameState();
+//
+//        c.makeMove(1, 2);
+//        c.printGameState();
+//
+//        c.makeMove(0, 1);
+//        c.printGameState();
+//
+//        c.makeMove(2, 2);
+//        c.printGameState();
+//
+//        c.makeMove(2, 1);
+//        c.printGameState();
+//        System.out.println();
+//        System.out.println();
+//        System.out.println("Winner is: " + c.checkWinner());
+//    }
 
     public boolean canMovePiece(int r, int c) {
         return true;

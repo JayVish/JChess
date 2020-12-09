@@ -37,4 +37,8 @@ public class Square {
     public int hashCode() {
         return Objects.hash(r, c);
     }
+
+    public String toString() {
+        return "R: " + r + " C: " + c;
+    }
 }

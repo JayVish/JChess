@@ -1,8 +1,9 @@
-import model.Chess;
+import model.ChessBoard;
+import model.Square;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Objects;
+import java.util.List;
 import javax.swing.*;
 
 /**
@@ -21,7 +22,7 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class GameBoard extends JComponent {
 
-    private Chess chess; // model for the game
+    private ChessBoard chess; // model for the game
     private JLabel status; // current status text
     private BoardSquare[][] board; // board to paint
     private Mode currMode; // curr state in game
@@ -42,7 +43,7 @@ public class GameBoard extends JComponent {
         // When this component has the keyboard focus, key events are handled by its key listener.
         setFocusable(true);
         
-        chess = new Chess(); // initializes model for the game
+        chess = new ChessBoard(); // initializes model for the game
         status = statusInit; // initializes the status JLabel
 
         /*
@@ -55,7 +56,7 @@ public class GameBoard extends JComponent {
                 Point p = e.getPoint();
                 
                 // updates the model given the coordinates of the mouseclick
-                chess.playTurn(p.x / 100, p.y / 100);
+                // chess.makeMove(p.x / 100, p.y / 100);
                 
                 updateStatus(); // updates the status JLabel
                 repaint(); // repaints the game board
@@ -96,17 +97,17 @@ public class GameBoard extends JComponent {
      * Updates the JLabel to reflect the current state of the game.
      */
     private void updateStatus() {
-        if (chess.getCurrentPlayer()) {
-            status.setText("Player 1's Turn");
+        if (chess.getCurrentPlayer() == 0) {
+            status.setText("White's Turn");
         } else {
-            status.setText("Player 2's Turn");
+            status.setText("Black's Turn");
         }
         
         int winner = chess.checkWinner();
         if (winner == 1) {
-            status.setText("Player 1 wins!!!");
+            status.setText("White wins!!!");
         } else if (winner == 2) {
-            status.setText("Player 2 wins!!!");
+            status.setText("Black wins!!!");
         } else if (winner == 3) {
             status.setText("It's a tie.");
         }
@@ -129,12 +130,9 @@ public class GameBoard extends JComponent {
         // Draw board squares
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
-                board[r][c].draw(g);
+                String pieceSpritePath = chess.getSprite(r, c);
 
-                String piece = chess.getCell(r, c);
-                if (piece != null) {
-                    board[r][c].drawPiece(g, piece);
-                }
+                board[r][c].draw(g, pieceSpritePath);
             }
         }
     }
@@ -158,8 +156,14 @@ public class GameBoard extends JComponent {
             // dehighlight previously chosen square if necessary
             if (highlightedSquare != null) {
                 board[highlightedSquare.getR()][highlightedSquare.getC()].dehighlightSquare();
-                repaint();
             }
+            for (int r = 0; r < 8; r++) {
+                for (int c = 0; c < 8; c++) {
+                    board[r][c].setIsNotMoveChoice();
+                }
+            }
+
+            repaint();
         }
 
         public void mousePressed(MouseEvent e) {
@@ -167,10 +171,13 @@ public class GameBoard extends JComponent {
             Square clicked = getSquareFromPoint(p);
 
             if (chess.canMovePiece(clicked.getR(), clicked.getC())) {
-
                 board[clicked.getR()][clicked.getC()].highlightSquare();
                 currMode = new MoveEndMode(clicked);
                 highlightedSquare = clicked;
+                List<Square> validMoves = chess.getChessMoves(clicked.getR(), clicked.getC());
+                for (Square s : validMoves) {
+                    board[s.getR()][s.getC()].setIsMoveChoice();
+                }
 
                 repaint();
             }
@@ -233,35 +240,35 @@ public class GameBoard extends JComponent {
     }
 
 
-    private class Square {
-        private int r;
-        private int c;
-
-        public Square(int r, int c) {
-            this.r = r;
-            this.c = c;
-        }
-
-        public int getR() {
-            return r;
-        }
-
-        public int getC() {
-            return c;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Square square = (Square) o;
-            return r == square.r &&
-                    c == square.c;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(r, c);
-        }
-    }
+//    private class model.Square {
+//        private int r;
+//        private int c;
+//
+//        public model.Square(int r, int c) {
+//            this.r = r;
+//            this.c = c;
+//        }
+//
+//        public int getR() {
+//            return r;
+//        }
+//
+//        public int getC() {
+//            return c;
+//        }
+//
+//        @Override
+//        public boolean equals(Object o) {
+//            if (this == o) return true;
+//            if (o == null || getClass() != o.getClass()) return false;
+//            model.Square square = (model.Square) o;
+//            return r == square.r &&
+//                    c == square.c;
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            return Objects.hash(r, c);
+//        }
+//    }
 }

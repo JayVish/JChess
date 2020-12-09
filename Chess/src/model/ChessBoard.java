@@ -20,9 +20,11 @@ public class ChessBoard {
     private List<List<Piece>> activePieces;
     private List<List<Piece>> capturedPieces;
 
+    // Position of kings on board
     private List<Piece> kings;
 
-    // isInCheck (Side s)
+    // List of game moves
+    private List<ChessMove> listOfGameMoves;
 
     // 0 for White win, 1 for Black win, 2 for draw, and 3 for ongoing
     private int gameStatus;
@@ -38,17 +40,18 @@ public class ChessBoard {
         board = new Piece[8][8];
 
         int currSideToSet;
+
         // init white's pieces
         currSideToSet = 0;
 
-        board[7][0] = new Rook(currSideToSet, 0, 0);
-        board[7][1] = new Knight(currSideToSet, 0, 1);
-        board[7][2] = new Bishop(currSideToSet, 0, 2);
-        board[7][3] = new Queen(currSideToSet, 0, 3);
-        board[7][4] = new King(currSideToSet, 0, 4);
-        board[7][5] = new Bishop(currSideToSet, 0, 5);
-        board[7][6] = new Knight(currSideToSet, 0, 6);
-        board[7][7] = new Rook(currSideToSet, 0, 7);
+        board[7][0] = new Rook(currSideToSet, 7, 0);
+        board[7][1] = new Knight(currSideToSet, 7, 1);
+        board[7][2] = new Bishop(currSideToSet, 7, 2);
+        board[7][3] = new Queen(currSideToSet, 7, 3);
+        board[7][4] = new King(currSideToSet, 7, 4);
+        board[7][5] = new Bishop(currSideToSet, 7, 5);
+        board[7][6] = new Knight(currSideToSet, 7, 6);
+        board[7][7] = new Rook(currSideToSet, 7, 7);
 
         for (int c = 0; c < 8; c++) {
             board[6][c] = new Pawn(currSideToSet, 6, c);
@@ -60,8 +63,8 @@ public class ChessBoard {
         board[0][0] = new Rook(currSideToSet, 0, 0);
         board[0][1] = new Knight(currSideToSet, 0, 1);
         board[0][2] = new Bishop(currSideToSet, 0, 2);
-        board[0][3] = new Queen(currSideToSet, 0, 3);
-        board[0][4] = new King(currSideToSet, 0, 4);
+        board[0][4] = new King(currSideToSet, 0, 3);
+        board[0][3] = new Queen(currSideToSet, 0, 4);
         board[0][5] = new Bishop(currSideToSet, 0, 5);
         board[0][6] = new Knight(currSideToSet, 0, 6);
         board[0][7] = new Rook(currSideToSet, 0, 7);
@@ -103,14 +106,42 @@ public class ChessBoard {
         // init black captured pieces
         capturedPieces.add(new ArrayList<>());
 
+        // init move list
+        listOfGameMoves = new ArrayList<>();
+
         // init game state fields
         numTurns = 0;
         currentPlayer = 0;
         gameStatus = 3;
     }
 
-    public Piece getSquare(Square loc) {
+    public ChessMove getLastMove() {
+        if (listOfGameMoves.size() == 0) return null;
+
+        return listOfGameMoves.get(listOfGameMoves.size() - 1);
+    }
+
+    public Piece getPieceAtSquare(Square loc) {
         return board[loc.getR()][loc.getC()];
+    }
+
+    public String getSprite(int r, int c) {
+        if (board[r][c] != null) {
+            return board[r][c].getSpriteFilePath();
+        } else {
+            return null;
+        }
+    }
+
+    public List<Square> getChessMoves(int r, int c) {
+        List<Square> validSquares = new ArrayList<>();
+        if (canMovePiece(r, c)) {
+            for (ChessMove m : board[r][c].getChessMoves(this)) {
+                validSquares.add(m.getNewLocation());
+            }
+        }
+
+        return validSquares;
     }
 
     public int getCurrentPlayer() {
@@ -122,8 +153,20 @@ public class ChessBoard {
     }
 
     public void addPieceToCaptured(int side, Piece p) {
-        board[p.getR()][p.getC()] = null;
         capturedPieces.get(side).add(p);
+    }
+
+    public void removePieceFromCaptured(int side, Piece capturedPiece) {
+        capturedPieces.get(side).remove(capturedPiece);
+    }
+
+    public void placePiece(Square loc, Piece p) {
+        board[loc.getR()][loc.getC()] = p;
+        p.setPosition(loc);
+    }
+
+    public void removePiece(Square loc) {
+        board[loc.getR()][loc.getC()] = null;
     }
 
     public boolean inBounds(Square loc) {
@@ -131,10 +174,6 @@ public class ChessBoard {
         if (loc.getC() < 0 || loc.getC() >= 8) return false;
 
         return true;
-    }
-
-    public void placePiece(Square loc, Square target) {
-        board[target.getR()][target.getC()] = board[loc.getR()][loc.getC()];
     }
 
     // positive value goes up
@@ -161,9 +200,14 @@ public class ChessBoard {
         }
     }
 
-    public Square getDiagonal(int side, Square loc, int count) {
+    public Square getRightDiagonal(int side, Square loc, int count) {
         return new Square(getVertical(side, loc, count).getR(),
                 getHorizontal(side, loc, count).getC());
+    }
+
+    public Square getLeftDiagonal(int side, Square loc, int count) {
+        return new Square(getVertical(side, loc, count).getR(),
+                getHorizontal(side, loc, -count).getC());
     }
 
     private void flipPlayer() {
@@ -171,8 +215,10 @@ public class ChessBoard {
     }
 
     // make move
-    public boolean makeMove(Piece p, int r, int c) {
-        if (p.makeChessMove(new Square(r, c))) {
+    public boolean makeMove(int r1, int c1, int r2, int c2) {
+        ChessMove m = board[r1][c1].makeChessMove(this, new Square(r2, c2));
+        if (m != null) {
+            listOfGameMoves.add(m);
             flipPlayer();
             return true;
         }
@@ -184,12 +230,26 @@ public class ChessBoard {
 
     public boolean doesPlayerHaveMove(int side) {
         for (Piece p : activePieces.get(side)) {
-            if (p.getChessMoves().size() > 0) {
+            if (p.getChessMoves(this).size() > 0) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    // Game state
+
+    public boolean isGameOver() {
+        return false;
+    }
+
+    public int getGameStatus() {
+        return 3;
+    }
+
+    public int checkWinner() {
+        return 1;
     }
 
     public boolean isPlayerInStalemate(int side) {
@@ -201,19 +261,31 @@ public class ChessBoard {
     }
 
     public boolean isPlayerInCheck(int side) {
-        int opponent = getOppositePlayer(side);
-
-        for (Piece p : activePieces.get(opponent)) {
-            for (ChessMove m : p.getChessMoves()) {
-                // check if king can be captured by any opposing piece
-                if (m instanceof Capture
-                        && m.getNewLocation().equals(kings.get(opponent).getSquare())) {
-                    return true;
-                }
-            }
-        }
-
         return false;
+
+//        int opponent = getOppositePlayer(side);
+//
+//        for (Piece p : activePieces.get(opponent)) {
+//            for (ChessMove m : p.getChessMoves(this)) {
+//                // check if king can be captured by any opposing piece
+//                if (m instanceof Capture
+//                        && m.getNewLocation().equals(kings.get(opponent).getSquare())) {
+//                    return true;
+//                }
+//            }
+//        }
+//
+//        return false;
+    }
+
+    public boolean canMovePiece(int r, int c) {
+        return board[r][c] != null && board[r][c].getSide() == currentPlayer;
+    }
+
+    public static void main(String[] args) {
+        // for debugging purposes only
+        ChessBoard board = new ChessBoard();
+        board.makeMove(6, 3, 6, 2);
     }
 
 }

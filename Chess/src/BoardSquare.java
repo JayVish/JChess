@@ -5,9 +5,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class BoardSquare {
-
     private Color trueColor;
     private Color currColor;
+    private Color moveChoiceColor;
+    private boolean isMoveChoice;
     private int xLoc;
     private int yLoc;
     private int dim;
@@ -19,6 +20,8 @@ public class BoardSquare {
             trueColor = Constants.DARK;
         }
         currColor = trueColor;
+        moveChoiceColor = new Color(107, 111, 70);
+        isMoveChoice = false;
 
         this.dim = dim;
         this.xLoc = xLoc;
@@ -26,19 +29,38 @@ public class BoardSquare {
     }
 
     public void highlightSquare() {
-        currColor = Color.GREEN;
+        currColor = new Color(138, 151, 111);
+    }
+
+    public void setIsMoveChoice() {
+        isMoveChoice = true;
+    }
+
+    public void setIsNotMoveChoice() {
+        isMoveChoice = false;
     }
 
     public void dehighlightSquare() {
         currColor = trueColor;
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics g, String pieceSpritePath) {
         g.setColor(currColor);
         g.fillRect(xLoc, yLoc, dim, dim);
+
+        if (pieceSpritePath != null) {
+            drawPiece(g, pieceSpritePath);
+        }
+
+        if (isMoveChoice) {
+            g.setColor(moveChoiceColor);
+            int circleRadius = (int) (.15*dim);
+            g.fillOval(xLoc + dim/2 - circleRadius, yLoc + dim/2 - circleRadius, circleRadius*2, circleRadius*2);
+            g.setColor(currColor);
+        }
     }
 
-    public void drawPiece(Graphics g, String pieceSpritePath) {
+    private void drawPiece(Graphics g, String pieceSpritePath) {
         BufferedImage pieceImg;
         try {
             pieceImg = ImageIO.read(new File(pieceSpritePath));

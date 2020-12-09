@@ -4,8 +4,6 @@ import model.ChessBoard;
 import model.Square;
 import model.pieces.Piece;
 
-import java.util.List;
-
 public abstract class ChessMove {
 
     private Piece p;
@@ -37,6 +35,13 @@ public abstract class ChessMove {
         this.capturedPiece = capturedPiece;
     }
 
+    public boolean createsCheck() {
+        makeMove();
+        boolean createsCheck = board.isPlayerInCheck(p.getSide());
+        undoMove();
+        return createsCheck;
+    }
+
     public Piece getCapturedPiece() {
         return capturedPiece;
     }
@@ -45,7 +50,7 @@ public abstract class ChessMove {
 
     public abstract void undoMove();
 
-//    public abstract List<Square> generateValidMoves();
+//    public abstract List<model.Square> generateValidMoves();
 
     // public abstract void makeMove(int r, int c);
 

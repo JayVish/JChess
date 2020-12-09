@@ -1,27 +1,31 @@
 package model.moves;
 
 import model.ChessBoard;
+import model.Square;
 import model.pieces.Piece;
 
 public class Translate extends ChessMove {
-
     private ChessBoard board;
+    private Piece p;
 
-    public Translate(Piece p, ChessBoard board) {
-        super(p, board);
+    public Translate(Piece p, Square target, ChessBoard board) {
+        super(p, target, board);
 
-        // test
-
+        this.p = p;
         this.board = board;
     }
 
     @Override
     public void makeMove() {
-        board.placePiece(getOldLocation(), getNewLocation());
+        p.addMoveToPiece();
+        board.placePiece(getNewLocation(), getPiece());
+        board.removePiece(getOldLocation());
     }
 
     @Override
     public void undoMove() {
-        board.placePiece(getNewLocation(), getOldLocation());
+        p.removeMoveFromPiece();
+        board.placePiece(getOldLocation(), getPiece());
+        board.removePiece(getNewLocation());
     }
 }
