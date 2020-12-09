@@ -24,7 +24,8 @@ public class GameBoard extends JComponent {
 
     private ChessBoard chess; // model for the game
     private JLabel status; // current status text
-    private BoardSquare[][] board; // board to paint
+    private BoardSquare[][] board2; // board to paint
+    private BoardSquare2[][] board;
     private Mode currMode; // curr state in game
     private Square highlightedSquare;
 
@@ -74,15 +75,20 @@ public class GameBoard extends JComponent {
         status.setText("Player 1's Turn");
 
         // generate initial colored board
-        board = new BoardSquare[8][8];
+        board2 = new BoardSquare[8][8];
+        board = new BoardSquare2[8][8];
+        setLayout(new GridLayout(8,8));
         for (int r = 0; r < 8; r++) {
             boolean isLight = r%2 == 0;
             for (int c = 0; c < 8; c++) {
-                board[r][c] = new BoardSquare(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM);
+                board2[r][c] = new BoardSquare(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM);
+                board[r][c] = new BoardSquare2(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM, chess, r, c);
 
+                add(board[r][c]);
                 isLight = !isLight;
             }
         }
+
 
         repaint();
 
@@ -123,19 +129,22 @@ public class GameBoard extends JComponent {
      * methods.  Consider breaking up your paintComponent logic
      * into multiple methods or classes, like Mushroom of Doom.
      */
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        // Draw board squares
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                String pieceSpritePath = chess.getSprite(r, c);
-
-                board[r][c].draw(g, pieceSpritePath);
-            }
-        }
-    }
+//    @Override
+//    public void paintComponent(Graphics g) {
+//        super.paintComponent(g);
+//
+//        long t1 = System.currentTimeMillis();
+//        // Draw board squares
+//        for (int r = 0; r < 8; r++) {
+//            for (int c = 0; c < 8; c++) {
+//                String pieceSpritePath = chess.getSprite(r, c);
+//
+//                board[r][c].draw(g, pieceSpritePath);
+//            }
+//        }
+//        System.out.println((System.currentTimeMillis() - t1)/1000.0);
+//
+//    }
 
     /**
      * Returns the size of the game board.
@@ -159,11 +168,14 @@ public class GameBoard extends JComponent {
             }
             for (int r = 0; r < 8; r++) {
                 for (int c = 0; c < 8; c++) {
-                    board[r][c].setIsNotMoveChoice();
+                    if (board[r][c].isMoveChoice()) {
+                        board[r][c].setIsNotMoveChoice();
+                        board[r][c].repaint();
+                    }
                 }
             }
 
-            repaint();
+            // repaint();
         }
 
         public void mousePressed(MouseEvent e) {
@@ -172,14 +184,14 @@ public class GameBoard extends JComponent {
 
             if (chess.canMovePiece(clicked.getR(), clicked.getC())) {
                 board[clicked.getR()][clicked.getC()].highlightSquare();
+                board[clicked.getR()][clicked.getC()].repaint();
                 currMode = new MoveEndMode(clicked);
                 highlightedSquare = clicked;
                 List<Square> validMoves = chess.getChessMoves(clicked.getR(), clicked.getC());
                 for (Square s : validMoves) {
                     board[s.getR()][s.getC()].setIsMoveChoice();
+                    board[s.getR()][s.getC()].repaint();
                 }
-
-                repaint();
             }
         }
     }
@@ -225,17 +237,17 @@ public class GameBoard extends JComponent {
 
         public void mousePressed(MouseEvent arg0) {
             currMode.mousePressed(arg0);
-            repaint();
+            // repaint();
         }
 
         public void mouseDragged(MouseEvent arg0) {
             currMode.mouseDragged(arg0);
-            repaint();
+            // repaint();
         }
 
         public void mouseReleased(MouseEvent arg0) {
             currMode.mouseReleased(arg0);
-            repaint();
+            // repaint();
         }
     }
 

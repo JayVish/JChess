@@ -28,6 +28,8 @@ public class EnPassant extends ChessMove {
     @Override
     public void undoMove() {
         p.removeMoveFromPiece();
+        // need to handle differently from capture logic
+        board.removePiece(getNewLocation());
         board.placePiece(getOldLocation(), getPiece());
         board.placePiece(getCapturedPiece().getSquare(), getCapturedPiece());
         board.removePieceFromCaptured(board.getOppositePlayer(getPiece().getSide()), getCapturedPiece());
