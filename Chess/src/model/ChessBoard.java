@@ -242,18 +242,6 @@ public class ChessBoard {
         currentPlayer = 1 - currentPlayer;
     }
 
-    // make move
-//    public boolean makeMove(int r1, int c1, int r2, int c2) {
-//        ChessMove m = board[r1][c1].makeChessMove(this, new Square(r2, c2));
-//        if (m != null) {
-//            listOfGameMoves.add(m);
-//            flipPlayer();
-//            return true;
-//        }
-//
-//         return false;
-//    }
-
     public List<Square> makeMove(int r1, int c1, int r2, int c2) {
         List<Square> changedSquares = new ArrayList<>();
         ChessMove m = board[r1][c1].makeChessMove(this, new Square(r2, c2));

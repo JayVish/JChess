@@ -61,6 +61,7 @@ public class GameBoard extends JPanel {
         capturePanels.add(new CapturePanel(1, chess));
         game.add(capturePanels.get(0), BorderLayout.NORTH);
         game.add(capturePanels.get(1), BorderLayout.SOUTH);
+
         reset();
     }
 
@@ -69,11 +70,10 @@ public class GameBoard extends JPanel {
      */
     public void reset() {
         // clear panel
-        // long t1 = System.currentTimeMillis();
         removeAll();
 
+        // reset board
         chess.reset();
-        status.setText("White's Turn");
 
         // repaint capture panel
         repaintCapturePanels();
@@ -93,10 +93,11 @@ public class GameBoard extends JPanel {
             }
         }
 
-        // resetting doesn't work w/o this and only god knows why
+        // reset board status
+        updateStatus();
+
         revalidate();
         repaint();
-        // System.out.println((System.currentTimeMillis() - t1)/1000.0);
 
         // Makes sure this component has keyboard/mouse focus
         requestFocusInWindow();
@@ -160,35 +161,6 @@ public class GameBoard extends JPanel {
             }
         }
     }
-
-    /**
-     * Draws the game board.
-     *
-     * There are many ways to draw a game board.  This approach
-     * will not be sufficient for most games, because it is not
-     * modular.  All of the logic for drawing the game board is
-     * in this method, and it does not take advantage of helper
-     * methods.  Consider breaking up your paintComponent logic
-     * into multiple methods or classes, like Mushroom of Doom.
-     */
-//    @Override
-//    public void paintComponent(Graphics g) {
-//        super.paintComponent(g);
-//
-//        gamePanel.repaint();
-//
-////        long t1 = System.currentTimeMillis();
-////        // Draw board squares
-////        for (int r = 0; r < 8; r++) {
-////            for (int c = 0; c < 8; c++) {
-////                String pieceSpritePath = chess.getSprite(r, c);
-////
-////                board[r][c].draw(g, pieceSpritePath);
-////            }
-////        }
-////        System.out.println((System.currentTimeMillis() - t1)/1000.0);
-//
-//    }
 
     private void repaintCapturePanels() {
         for (CapturePanel cp : capturePanels) {
@@ -256,7 +228,6 @@ public class GameBoard extends JPanel {
 
     class MoveStartMode extends MouseAdapter implements Mode {
         public MoveStartMode() {
-            // dehighlight previously chosen square if necessary
             clearBoardOfPriorTurnIndicators();
         }
 
@@ -281,7 +252,6 @@ public class GameBoard extends JPanel {
     class MoveEndMode extends MouseAdapter implements Mode {
         Square start;
 
-        // location of chosen piece to move
         MoveEndMode (Square start) {
             this.start = start;
         }
@@ -290,19 +260,15 @@ public class GameBoard extends JPanel {
             Point p = e.getPoint();
             Square clicked = getSquareFromPoint(p);
 
-//            if (chess.isValidMove(start.getR(), start.getC(), clicked.getR(), clicked.getC())) {
-
             List<Square> changedSquares = chess.makeMove(start.getR(), start.getC(), clicked.getR(), clicked.getC());
             for (Square s : changedSquares) {
                 board[s.getR()][s.getC()].repaint();
             }
 
-            // is game over?
             if (chess.isGameOver()) {
                 currMode = new GameOverMode();
             } else {
                 updateStatus();
-                // reset move regardless of if valid
                 currMode = new MoveStartMode();
             }
         }
@@ -319,50 +285,6 @@ public class GameBoard extends JPanel {
 
         public void mousePressed(MouseEvent arg0) {
             currMode.mousePressed(arg0);
-            // repaint();
-        }
-
-        public void mouseDragged(MouseEvent arg0) {
-            currMode.mouseDragged(arg0);
-            // repaint();
-        }
-
-        public void mouseReleased(MouseEvent arg0) {
-            currMode.mouseReleased(arg0);
-            // repaint();
         }
     }
-
-
-//    private class model.Square {
-//        private int r;
-//        private int c;
-//
-//        public model.Square(int r, int c) {
-//            this.r = r;
-//            this.c = c;
-//        }
-//
-//        public int getR() {
-//            return r;
-//        }
-//
-//        public int getC() {
-//            return c;
-//        }
-//
-//        @Override
-//        public boolean equals(Object o) {
-//            if (this == o) return true;
-//            if (o == null || getClass() != o.getClass()) return false;
-//            model.Square square = (model.Square) o;
-//            return r == square.r &&
-//                    c == square.c;
-//        }
-//
-//        @Override
-//        public int hashCode() {
-//            return Objects.hash(r, c);
-//        }
-//    }
 }
