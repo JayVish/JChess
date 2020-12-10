@@ -78,6 +78,10 @@ public class BoardSquare2 extends JComponent {
         currColor = trueColor;
     }
 
+    private boolean containsChessSprite() {
+        return chess.getSprite(r, c) != null;
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         g.setColor(currColor);
@@ -89,15 +93,24 @@ public class BoardSquare2 extends JComponent {
             g.fillOval(0, 0, dim, dim);
         }
 
-        if (chess.getSprite(r, c) != null) {
+        if (containsChessSprite()) {
             drawPiece(g, chess.getSprite(r, c));
         }
 
         if (isMoveChoice) {
             g.setColor(moveChoiceColor);
-            int circleRadius = (int) (.15*dim);
-            g.fillOval(dim/2 - circleRadius, dim/2 - circleRadius, circleRadius*2, circleRadius*2);
-            g.setColor(currColor);
+
+            if (containsChessSprite()) {
+                int triSize = (int) (2.5*dim/10);
+                g.fillPolygon(new int[]{0, triSize, 0}, new int[]{0, 0, triSize}, 3);
+                g.fillPolygon(new int[]{dim - triSize, dim, dim}, new int[]{0, 0, triSize}, 3);
+                g.fillPolygon(new int[]{dim, dim, dim - triSize}, new int[]{dim - triSize, dim, dim}, 3);
+                g.fillPolygon(new int[]{triSize, 0, 0}, new int[]{dim, dim, dim - triSize}, 3);
+            } else {
+                int circleRadius = (int) (.15 * dim);
+                g.fillOval(dim / 2 - circleRadius, dim / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
+                g.setColor(currColor);
+            }
         }
     }
 
