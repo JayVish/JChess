@@ -14,15 +14,15 @@ public class BoardSquare2 extends JComponent {
     private Color trueColor;
     private Color currColor;
     private Color moveChoiceColor;
-    private String pieceSpritePath;
+    private Color checkColor;
+    private Color checkmateColor;
     private boolean isMoveChoice;
-    private int xLoc;
-    private int yLoc;
+    private boolean isInCheck;
     private int dim;
     private int r;
     private int c;
 
-    public BoardSquare2(boolean isLight, int dim, int xLoc, int yLoc, ChessBoard chess, int r, int c) {
+    public BoardSquare2(boolean isLight, int dim, ChessBoard chess, int r, int c) {
         if (isLight) {
             trueColor = Constants.LIGHT;
         } else {
@@ -31,6 +31,8 @@ public class BoardSquare2 extends JComponent {
         currColor = trueColor;
         moveChoiceColor = new Color(107, 111, 70);
         isMoveChoice = false;
+        checkColor = new Color(217, 80, 62);
+        checkmateColor = Color.RED;
 
         this.chess = chess;
         this.dim = dim;
@@ -56,6 +58,22 @@ public class BoardSquare2 extends JComponent {
         isMoveChoice = false;
     }
 
+    public void setIsInCheckmate() {
+        currColor = checkmateColor;
+    }
+
+    public boolean isInCheck() {
+        return isInCheck;
+    }
+
+    public void setIsInCheck() {
+        isInCheck = true;
+    }
+
+    public void setIsNotInCheck() {
+        isInCheck = false;
+    }
+
     public void dehighlightSquare() {
         currColor = trueColor;
     }
@@ -63,7 +81,13 @@ public class BoardSquare2 extends JComponent {
     @Override
     public void paintComponent(Graphics g) {
         g.setColor(currColor);
+        //g.setColor(new Color(0, (int) (Math.random()*255), 0));
         g.fillRect(0, 0, dim, dim);
+
+        if (isInCheck) {
+            g.setColor(checkColor);
+            g.fillOval(0, 0, dim, dim);
+        }
 
         if (chess.getSprite(r, c) != null) {
             drawPiece(g, chess.getSprite(r, c));
@@ -81,7 +105,7 @@ public class BoardSquare2 extends JComponent {
         BufferedImage pieceImg;
         try {
             pieceImg = ImageIO.read(new File(pieceSpritePath));
-            g.drawImage(pieceImg, xLoc, yLoc, this.dim, this.dim, null);
+            g.drawImage(pieceImg, 0, 0, this.dim, this.dim, null);
         } catch (IOException e) {
             System.out.println("Internal Error:" + e.getMessage());
         }

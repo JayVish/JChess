@@ -28,11 +28,14 @@ public class Game implements Runnable {
         final JPanel status_panel = new JPanel();
         frame.add(status_panel, BorderLayout.SOUTH);
         final JLabel status = new JLabel("Setting up...");
+//        Font f = status.getFont();
+//        status.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
         status_panel.add(status);
 
         // Game board
-        final GameBoard board = new GameBoard(status);
-        frame.add(board, BorderLayout.CENTER);
+        JPanel game = new JPanel();
+        final GameBoard board = new GameBoard(status, game);
+        frame.add(game, BorderLayout.CENTER);
 
         // Reset button
         final JPanel control_panel = new JPanel();
@@ -48,6 +51,40 @@ public class Game implements Runnable {
             }
         });
         control_panel.add(reset);
+
+        final JButton undo = new JButton("Undo");
+        undo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                board.undo();
+            }
+        });
+        control_panel.add(undo);
+
+        String instructionsText = "This game follows the standard rules of 2-player chess. " +
+                "When you click on a piece, it will show you your available moves. The king will " +
+                "be highlighted with a red circle when under check. When there's a checkmate," +
+                "the relevant king will be highlighted with a red square. The bottom" +
+                " bar will show the status of the game at all times. " +
+                "The undo button will reverse whatever move was made. Note " +
+                "that pawns will be automatically promoted into queens for convenience. " +
+                "Have fun playing!";
+
+        final JButton instructions = new JButton("Instructions");
+        instructions.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JTextArea ta = new JTextArea(instructionsText, 2, 40);
+                ta.setWrapStyleWord(true);
+                ta.setLineWrap(true);
+                ta.setOpaque(false);
+                ta.setBorder(null);
+                ta.setEditable(false);
+                ta.setFocusable(false);
+                JOptionPane.showMessageDialog(frame, ta, "Instructions", JOptionPane.INFORMATION_MESSAGE);
+                //JOptionPane.showMessageDialog(frame, instructionsText);
+            }
+        });
+        control_panel.add(instructions);
+
 
         // Put the frame on the screen
         frame.pack();

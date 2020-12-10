@@ -12,20 +12,28 @@ public class QueensideCastle extends Castle {
     private Piece king;
 
     public QueensideCastle(Piece king, Piece rook, Square target, ChessBoard board) {
-        super(king, rook, target, board.getHorizontal(king.getSide(), king.getSquare(), -2),
-                board.getHorizontal(rook.getSide(), rook.getSquare(), 3), board);
+        super(king, rook, target, board);
+
+        int direction = 1;
+        if (king.getSide() == 1) {
+            direction = -1;
+        }
+
+        setNewKingPosition(board.getHorizontal(king.getSide(), king.getSquare(), direction*-2));
+        setNewRookPosition(board.getHorizontal(rook.getSide(), rook.getSquare(), direction*3));
 
         this.king = king;
         this.board = board;
     }
 
-    @Override
-    public List<Square> getChangedSquares() {
-        List<Square> updatedSquares = new ArrayList<>();
-        for (int count = 0; count >= -4; count--) {
-            updatedSquares.add(board.getHorizontal(king.getSide(), getOldLocation(), count));
-        }
 
-        return updatedSquares;
-    }
+//    @Override
+//    public List<Square> getChangedSquares() {
+//        List<Square> updatedSquares = new ArrayList<>();
+//        for (int count = 0; count >= -4; count--) {
+//            updatedSquares.add(board.getHorizontal(king.getSide(), getOldLocation(), count));
+//        }
+//
+//        return updatedSquares;
+//    }
 }

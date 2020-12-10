@@ -27,7 +27,8 @@ public class ChessBoard {
     // List of game moves
     private List<ChessMove> listOfGameMoves;
 
-    // 0 for White win, 1 for Black win, 2 for draw, and 3 for ongoing
+    // 0 for White win, 1 for Black win, 2 for draw, and 3 for black in check
+    // 4 for white in check, and 5 for ongoing
     private int gameStatus;
 
     public ChessBoard() {
@@ -64,8 +65,8 @@ public class ChessBoard {
         board[0][0] = new Rook(currSideToSet, 0, 0);
         board[0][1] = new Knight(currSideToSet, 0, 1);
         board[0][2] = new Bishop(currSideToSet, 0, 2);
-        board[0][3] = new King(currSideToSet, 0, 3);
-        board[0][4] = new Queen(currSideToSet, 0, 4);
+        board[0][3] = new Queen(currSideToSet, 0, 3);
+        board[0][4] = new King(currSideToSet, 0, 4);
         board[0][5] = new Bishop(currSideToSet, 0, 5);
         board[0][6] = new Knight(currSideToSet, 0, 6);
         board[0][7] = new Rook(currSideToSet, 0, 7);
@@ -77,7 +78,7 @@ public class ChessBoard {
         // set kings
         kings = new ArrayList<>();
         kings.add(board[7][4]);
-        kings.add(board[0][3]);
+        kings.add(board[0][4]);
 
         // init active list
         activePieces = new ArrayList<>();
@@ -113,7 +114,7 @@ public class ChessBoard {
         // init game state fields
         numTurns = 0;
         currentPlayer = 0;
-        gameStatus = 3;
+        gameStatus = 5;
     }
 
     public ChessMove getLastMove() {
@@ -151,6 +152,10 @@ public class ChessBoard {
 
     public int getOppositePlayer(int side) {
         return 1 - side;
+    }
+
+    public Square getPositionOfKing(int side) {
+        return kings.get(side).getSquare();
     }
 
     public void addPieceToCaptured(int side, Piece p) {
@@ -231,6 +236,24 @@ public class ChessBoard {
             changedSquares.addAll(m.getChangedSquares());
             flipPlayer();
             numTurns++;
+            setGameStatus();
+        }
+
+        printBoard();
+
+        return changedSquares;
+    }
+
+    public List<Square> undoMove() {
+        List<Square> changedSquares = new ArrayList<>();
+        ChessMove m = getLastMove();
+        if (m != null) {
+            m.undoMove();
+            listOfGameMoves.remove(m);
+            changedSquares.addAll(m.getChangedSquares());
+            flipPlayer();
+            numTurns--;
+            setGameStatus();
         }
 
         printBoard();
@@ -241,23 +264,40 @@ public class ChessBoard {
     // chess board is responsible for game states: check, checkmate, and draw
 
     public boolean doesPlayerHaveMove(int side) {
-        for (Piece p : activePieces.get(side)) {
+        List<Piece> activePiecesCopy = new ArrayList<>();
+        activePiecesCopy.addAll(activePieces.get(side));
+
+        for (Piece p : activePiecesCopy) {
             if (p.getChessMoves(this, true).size() > 0) {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     // Game state
 
     public boolean isGameOver() {
-        return false;
+        return gameStatus == 0 || gameStatus == 1 || gameStatus == 2;
+    }
+
+    private void setGameStatus() {
+        if (isPlayerInCheckmate(currentPlayer)) {
+            gameStatus = getOppositePlayer(currentPlayer);
+        } else if(isPlayerInStalemate(currentPlayer)) {
+            gameStatus = 2;
+        } else if(isPlayerInCheck(1)){
+            gameStatus = 3;
+        } else if(isPlayerInCheck(0)) {
+            gameStatus = 4;
+        } else {
+            gameStatus = 5;
+        }
     }
 
     public int getGameStatus() {
-        return 3;
+        return gameStatus;
     }
 
     public int checkWinner() {
@@ -269,7 +309,7 @@ public class ChessBoard {
     }
 
     public boolean isPlayerInCheckmate(int side) {
-        return isPlayerInCheck(side) && doesPlayerHaveMove(side);
+        return isPlayerInCheck(side) && !doesPlayerHaveMove(side);
     }
 
     public boolean isPlayerInCheck(int side) {
@@ -321,13 +361,31 @@ public class ChessBoard {
             }
             System.out.println();
         }
+        System.out.println("Game Status: " + gameStatus);
         System.out.println("---------------------------");
     }
 
     public static void main(String[] args) {
         // for debugging purposes only
         ChessBoard board = new ChessBoard();
-        board.makeMove(6, 3, 6, 2);
+        board.makeMove(6, 4, 5, 4);
+
+        board.makeMove(1,0,2,0);
+
+        // bishop move
+        board.makeMove(7, 5, 4, 2);
+
+        board.makeMove(2,0,3,0);
+
+        // queen move
+        board.makeMove(7, 3, 5, 5);
+
+        board.makeMove(3, 0, 4, 0);
+
+        // checkmate move
+        board.makeMove(5, 5, 1, 5);
+
+
     }
 
 }

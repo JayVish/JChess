@@ -177,24 +177,34 @@ public class King extends Piece {
         Square currSquare;
         ChessMove currMove;
 
+        // set direction based on color of piece
+        int direction = 1;
+        if (getSide() == 1) {
+            direction = -1;
+        }
+
         // Kingside castle
-        currSquare = board.getHorizontal(getSide(), getSquare(), 3);
+        currSquare = board.getHorizontal(getSide(), getSquare(), direction*3);
         if (!hasMoved() && board.getPieceAtSquare(currSquare) != null && board.getPieceAtSquare(currSquare) instanceof Rook
             && !board.getPieceAtSquare(currSquare).hasMoved()) {
             Piece rookToCastle = board.getPieceAtSquare(currSquare);
+
+            // white has kingside to the right
+            // black has queenside to the right
+
             // check if any relevant squares are threatened
             boolean noThreat = true;
             if (isCheckConcern) {
                 for (int count = 0; count <= 2; count++) {
                     noThreat = noThreat
-                            && !board.isSquareThreatened(getSide(), board.getHorizontal(getSide(), getSquare(), count));
+                            && !board.isSquareThreatened(getSide(), board.getHorizontal(getSide(), getSquare(), direction*count));
                 }
             }
 
             boolean areSquaresEmpty = true;
             for (int count = 1; count <= 2; count++) {
                 areSquaresEmpty = areSquaresEmpty
-                        && board.getPieceAtSquare(board.getHorizontal(getSide(), getSquare(), count)) == null;
+                        && board.getPieceAtSquare(board.getHorizontal(getSide(), getSquare(), direction*count)) == null;
             }
 
             if (noThreat && areSquaresEmpty) {
@@ -205,7 +215,7 @@ public class King extends Piece {
         }
 
         // Queenside castle
-        currSquare = board.getHorizontal(getSide(), getSquare(), -4);
+        currSquare = board.getHorizontal(getSide(), getSquare(), direction*-4);
         if (!hasMoved() && board.getPieceAtSquare(currSquare) != null && board.getPieceAtSquare(currSquare) instanceof Rook
                 && !board.getPieceAtSquare(currSquare).hasMoved()) {
             Piece rookToCastle = board.getPieceAtSquare(currSquare);
@@ -214,14 +224,14 @@ public class King extends Piece {
             if (isCheckConcern) {
                 for (int count = 0; count >= -2; count--) {
                     noThreat = noThreat
-                            && !board.isSquareThreatened(getSide(), board.getHorizontal(getSide(), getSquare(), count));
+                            && !board.isSquareThreatened(getSide(), board.getHorizontal(getSide(), getSquare(), direction*count));
                 }
             }
 
             boolean areSquaresEmpty = true;
             for (int count = -1; count >= -3; count--) {
                 areSquaresEmpty = areSquaresEmpty
-                        && board.getPieceAtSquare(board.getHorizontal(getSide(), getSquare(), count)) == null;
+                        && board.getPieceAtSquare(board.getHorizontal(getSide(), getSquare(), direction*count)) == null;
             }
 
             if (noThreat && areSquaresEmpty) {

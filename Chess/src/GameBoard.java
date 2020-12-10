@@ -35,7 +35,7 @@ public class GameBoard extends JPanel {
     /**
      * Initializes the game board.
      */
-    public GameBoard(JLabel statusInit) {
+    public GameBoard(JLabel statusInit, JPanel game) {
         // creates border around the court area, JComponent method
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -47,6 +47,10 @@ public class GameBoard extends JPanel {
         status = statusInit; // initializes the status JLabel
 
         addMouseListener(new Mouse());
+
+        game.setLayout(new BorderLayout());
+        game.add(this, BorderLayout.WEST);
+        //game.add(new JLabel("TEST Label"), BorderLayout.EAST);;
     }
 
     /**
@@ -68,7 +72,7 @@ public class GameBoard extends JPanel {
             boolean isLight = r%2 == 0;
             for (int c = 0; c < 8; c++) {
                 board2[r][c] = new BoardSquare(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM);
-                board[r][c] = new BoardSquare2(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM, chess, r, c);
+                board[r][c] = new BoardSquare2(isLight, SQUARE_DIM, chess, r, c);
 
                 add(board[r][c]);
                 isLight = !isLight;
@@ -87,23 +91,56 @@ public class GameBoard extends JPanel {
         currMode = new MoveStartMode();
     }
 
+    public void undo() {
+        List<Square> updateSquares = chess.undoMove();
+        for (Square s : updateSquares) {
+            board[s.getR()][s.getC()].repaint();
+        }
+        updateStatus();
+    }
+
     /**
      * Updates the JLabel to reflect the current state of the game.
      */
     private void updateStatus() {
-        if (chess.getCurrentPlayer() == 0) {
-            status.setText("White's Turn");
+        // removes any previous modifiers
+        clearBoardOfAllIndicators();
+
+        Square attackedKing;
+        if (chess.isGameOver()) {
+            switch (chess.getGameStatus()) {
+                case 0:
+                    status.setText("White Wins!");
+                    attackedKing = chess.getPositionOfKing(1);
+                    board[attackedKing.getR()][attackedKing.getC()].setIsInCheckmate();
+                    board[attackedKing.getR()][attackedKing.getC()].repaint();
+                    break;
+                case 1: status.setText("Black Wins!");
+                    attackedKing = chess.getPositionOfKing(0);
+                    board[attackedKing.getR()][attackedKing.getC()].setIsInCheckmate();
+                    board[attackedKing.getR()][attackedKing.getC()].repaint();
+                    break;
+                case 2: status.setText("Stalemate!");
+                    break;
+            }
         } else {
-            status.setText("Black's Turn");
-        }
-        
-        int winner = chess.checkWinner();
-        if (winner == 1) {
-            status.setText("White wins!!!");
-        } else if (winner == 2) {
-            status.setText("Black wins!!!");
-        } else if (winner == 3) {
-            status.setText("It's a tie.");
+            switch (chess.getGameStatus()) {
+                case 3:
+                    attackedKing = chess.getPositionOfKing(1);
+                    board[attackedKing.getR()][attackedKing.getC()].setIsInCheck();
+                    board[attackedKing.getR()][attackedKing.getC()].repaint();
+                    break;
+                case 4:
+                    attackedKing = chess.getPositionOfKing(0);
+                    board[attackedKing.getR()][attackedKing.getC()].setIsInCheck();
+                    board[attackedKing.getR()][attackedKing.getC()].repaint();
+                    break;
+            }
+            if (chess.getCurrentPlayer() == 0) {
+                status.setText("White's Turn");
+            } else {
+                status.setText("Black's Turn");
+            }
         }
     }
 
@@ -150,21 +187,54 @@ public class GameBoard extends JPanel {
 
     interface Mode extends MouseListener, MouseMotionListener { }
 
+    private void clearBoardOfAllIndicators() {
+        if (highlightedSquare != null) {
+            board[highlightedSquare.getR()][highlightedSquare.getC()].dehighlightSquare();
+            board[highlightedSquare.getR()][highlightedSquare.getC()].repaint();
+        }
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                boolean needToRepaint = false;
+                if (board[r][c].isMoveChoice()) {
+                    board[r][c].setIsNotMoveChoice();
+                    needToRepaint = true;
+                }
+                if (board[r][c].isInCheck()) {
+                    board[r][c].setIsNotInCheck();
+                    needToRepaint = true;
+                }
+
+                if (needToRepaint) {
+                    board[r][c].repaint();
+                }
+            }
+        }
+    }
+
+    private void clearBoardOfPriorTurnIndicators() {
+        if (highlightedSquare != null) {
+            board[highlightedSquare.getR()][highlightedSquare.getC()].dehighlightSquare();
+            board[highlightedSquare.getR()][highlightedSquare.getC()].repaint();
+        }
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                boolean needToRepaint = false;
+                if (board[r][c].isMoveChoice()) {
+                    board[r][c].setIsNotMoveChoice();
+                    needToRepaint = true;
+                }
+
+                if (needToRepaint) {
+                    board[r][c].repaint();
+                }
+            }
+        }
+    }
+
     class MoveStartMode extends MouseAdapter implements Mode {
         public MoveStartMode() {
             // dehighlight previously chosen square if necessary
-            if (highlightedSquare != null) {
-                board[highlightedSquare.getR()][highlightedSquare.getC()].dehighlightSquare();
-                board[highlightedSquare.getR()][highlightedSquare.getC()].repaint();
-            }
-            for (int r = 0; r < 8; r++) {
-                for (int c = 0; c < 8; c++) {
-                    if (board[r][c].isMoveChoice()) {
-                        board[r][c].setIsNotMoveChoice();
-                        board[r][c].repaint();
-                    }
-                }
-            }
+            clearBoardOfPriorTurnIndicators();
         }
 
         public void mousePressed(MouseEvent e) {
@@ -200,14 +270,16 @@ public class GameBoard extends JPanel {
 //            if (chess.isValidMove(start.getR(), start.getC(), clicked.getR(), clicked.getC())) {
 
             List<Square> changedSquares = chess.makeMove(start.getR(), start.getC(), clicked.getR(), clicked.getC());
+            boolean succesfulMove = changedSquares.size() != 0;
             for (Square s : changedSquares) {
                 board[s.getR()][s.getC()].repaint();
             }
 
             // is game over?
             if (chess.isGameOver()) {
-                currMode = new GameOverMode(chess.getGameStatus());
+                currMode = new GameOverMode();
             } else {
+                updateStatus();
                 // reset move regardless of if valid
                 currMode = new MoveStartMode();
             }
@@ -215,13 +287,9 @@ public class GameBoard extends JPanel {
     }
 
     class GameOverMode extends MouseAdapter implements Mode {
-        public GameOverMode(int gameStatus) {
-            switch (gameStatus) {
-                case 0: System.out.println("White Wins!");
-                case 1: System.out.println("Black Wins!");
-                case 2: System.out.println("Stalemate!");
-                case 3: System.out.println("The game is ongoing.");
-            }
+        public GameOverMode() {
+            clearBoardOfAllIndicators();
+            updateStatus();
         }
     }
 
