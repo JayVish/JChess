@@ -66,7 +66,8 @@ public class Game implements Runnable {
                 "the relevant king will be highlighted with a red square. The bottom" +
                 " bar will show the status of the game at all times. " +
                 "The undo button will reverse whatever move was made. Note " +
-                "that pawns will be automatically promoted into queens for convenience. " +
+                "that pawns will be automatically promoted into queens for convenience." +
+                "The reset button will restart the game from the beginning state." +
                 "Have fun playing!";
 
         final JButton instructions = new JButton("Instructions");

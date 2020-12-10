@@ -3,6 +3,7 @@ import model.Square;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
@@ -32,6 +33,8 @@ public class GameBoard extends JPanel {
     public static final int BOARD_DIM = 800;
     public static final int SQUARE_DIM = BOARD_DIM/8;
 
+    private List<CapturePanel> capturePanels;
+
     /**
      * Initializes the game board.
      */
@@ -49,8 +52,16 @@ public class GameBoard extends JPanel {
         addMouseListener(new Mouse());
 
         game.setLayout(new BorderLayout());
-        game.add(this, BorderLayout.WEST);
-        //game.add(new JLabel("TEST Label"), BorderLayout.EAST);;
+        game.add(this, BorderLayout.CENTER);
+
+        capturePanels = new ArrayList<>();
+        // captured white pieces
+        capturePanels.add(new CapturePanel(0, chess));
+        // captured black pieces
+        capturePanels.add(new CapturePanel(1, chess));
+        game.add(capturePanels.get(0), BorderLayout.NORTH);
+        game.add(capturePanels.get(1), BorderLayout.SOUTH);
+        reset();
     }
 
     /**
@@ -63,6 +74,9 @@ public class GameBoard extends JPanel {
 
         chess.reset();
         status.setText("White's Turn");
+
+        // repaint capture panel
+        repaintCapturePanels();
 
         // generate initial colored board
         board2 = new BoardSquare[8][8];
@@ -105,6 +119,9 @@ public class GameBoard extends JPanel {
     private void updateStatus() {
         // removes any previous modifiers
         clearBoardOfAllIndicators();
+
+        // update capture panel
+        repaintCapturePanels();
 
         Square attackedKing;
         if (chess.isGameOver()) {
@@ -172,6 +189,12 @@ public class GameBoard extends JPanel {
 ////        System.out.println((System.currentTimeMillis() - t1)/1000.0);
 //
 //    }
+
+    private void repaintCapturePanels() {
+        for (CapturePanel cp : capturePanels) {
+            cp.repaint();
+        }
+    }
 
     /**
      * Returns the size of the game board.
@@ -270,7 +293,6 @@ public class GameBoard extends JPanel {
 //            if (chess.isValidMove(start.getR(), start.getC(), clicked.getR(), clicked.getC())) {
 
             List<Square> changedSquares = chess.makeMove(start.getR(), start.getC(), clicked.getR(), clicked.getC());
-            boolean succesfulMove = changedSquares.size() != 0;
             for (Square s : changedSquares) {
                 board[s.getR()][s.getC()].repaint();
             }

@@ -47,8 +47,9 @@ public class Pawn extends Piece {
         int moveAmount;
         Square currSquare;
         ChessMove currMove;
-        // check if on right row
-        if (!board.inBounds(board.getVertical(getSide(), getSquare(), 2))) {
+        // check if on right row (exactly 1 row from respective back)
+        if (!board.inBounds(board.getVertical(getSide(), getSquare(), 2))
+                && board.inBounds(board.getVertical(getSide(), getSquare(), 1))) {
             // N
             moveAmount = 1;
             currSquare = board.getVertical(getSide(), getSquare(), moveAmount);

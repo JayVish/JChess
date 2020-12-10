@@ -43,10 +43,11 @@ public class Promotion extends ChessMove {
     public void makeMove() {
         p.addMoveToPiece();
         board.removePiece(getOldLocation());
-        board.placePiece(getNewLocation(), promotedPiece);
         if (hasCapturedPiece()) {
+            board.removePiece(getNewLocation());
             board.addPieceToCaptured(board.getOppositePlayer(getPiece().getSide()), getCapturedPiece());
         }
+        board.placePiece(getNewLocation(), promotedPiece);
     }
 
     @Override

@@ -8,14 +8,10 @@ import java.util.List;
 import java.util.*;
 
 public class ChessBoard {
-
-    // make private
-    public Piece[][] board;
+    private Piece[][] board;
     private int numTurns;
     // current playing player
     private int currentPlayer;
-    // Ongoing, Checkmate, stalemate, draw
-    private boolean gameState;
 
     // 0 is white, 1 is black
     private List<Set<Piece>> activePieces;
@@ -158,6 +154,36 @@ public class ChessBoard {
         return kings.get(side).getSquare();
     }
 
+    public List<String> getCapturedSprites(int side) {
+        List<String> capturedSprites = new ArrayList<>();
+        for (Piece p : capturedPieces.get(side)) {
+            capturedSprites.add(p.getSpriteFilePath());
+        }
+
+        return capturedSprites;
+    }
+
+    // calculate how many points a color's captured pieces are worth
+    public int getCapturedScore(int side) {
+        int score = 0;
+
+        for (Piece p : capturedPieces.get(side)) {
+            if (p instanceof Queen) {
+                score += 9;
+            } else if (p instanceof Rook) {
+                score += 5;
+            } else if (p instanceof Knight) {
+                score += 3;
+            } else if (p instanceof Bishop) {
+                score += 3;
+            } else if (p instanceof Pawn) {
+                score += 1;
+            }
+        }
+
+        return score;
+    }
+
     public void addPieceToCaptured(int side, Piece p) {
         capturedPieces.get(side).add(p);
     }
@@ -232,13 +258,17 @@ public class ChessBoard {
         List<Square> changedSquares = new ArrayList<>();
         ChessMove m = board[r1][c1].makeChessMove(this, new Square(r2, c2));
         if (m != null) {
+            System.out.println(r1 + " " + c1 + " " + r2 + " " + c2);
+            System.out.println(board[0][5].getSpriteFilePath());
             listOfGameMoves.add(m);
             changedSquares.addAll(m.getChangedSquares());
             flipPlayer();
             numTurns++;
+            System.out.println(board[0][5].getSpriteFilePath());
             setGameStatus();
         }
 
+        System.out.println(board[0][5].getSpriteFilePath());
         printBoard();
 
         return changedSquares;
@@ -368,22 +398,38 @@ public class ChessBoard {
     public static void main(String[] args) {
         // for debugging purposes only
         ChessBoard board = new ChessBoard();
-        board.makeMove(6, 4, 5, 4);
 
-        board.makeMove(1,0,2,0);
+        board.makeMove(6, 3, 4, 3);
+        board.makeMove(1, 4, 3, 4);
 
-        // bishop move
-        board.makeMove(7, 5, 4, 2);
+        board.makeMove(4, 3, 3, 4);
+        board.makeMove(1, 5, 2, 5);
 
-        board.makeMove(2,0,3,0);
+        board.makeMove(3, 4, 2, 5);
+        board.makeMove(1,2, 2,2);
 
-        // queen move
-        board.makeMove(7, 3, 5, 5);
+        board.makeMove(2,5, 1,6);
+        board.makeMove(2,2, 3,2);
 
-        board.makeMove(3, 0, 4, 0);
+        board.makeMove(1,6,0,5);
 
-        // checkmate move
-        board.makeMove(5, 5, 1, 5);
+
+//        board.makeMove(6, 4, 5, 4);
+//
+//        board.makeMove(1,0,2,0);
+//
+//        // bishop move
+//        board.makeMove(7, 5, 4, 2);
+//
+//        board.makeMove(2,0,3,0);
+//
+//        // queen move
+//        board.makeMove(7, 3, 5, 5);
+//
+//        board.makeMove(3, 0, 4, 0);
+//
+//        // checkmate move
+//        board.makeMove(5, 5, 1, 5);
 
 
     }
