@@ -54,7 +54,7 @@ public class GameBoard extends JPanel {
      */
     public void reset() {
         // clear panel
-        long t1 = System.currentTimeMillis();
+        // long t1 = System.currentTimeMillis();
         removeAll();
 
         chess.reset();
@@ -78,7 +78,7 @@ public class GameBoard extends JPanel {
         // resetting doesn't work w/o this and only god knows why
         revalidate();
         repaint();
-        System.out.println((System.currentTimeMillis() - t1)/1000.0);
+        // System.out.println((System.currentTimeMillis() - t1)/1000.0);
 
         // Makes sure this component has keyboard/mouse focus
         requestFocusInWindow();
