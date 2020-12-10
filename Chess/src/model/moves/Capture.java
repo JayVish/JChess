@@ -31,8 +31,8 @@ public class Capture extends ChessMove {
     @Override
     public void makeMove() {
         p.addMoveToPiece();
-        board.placePiece(getNewLocation(), getPiece());
         board.removePiece(getOldLocation());
+        board.placePiece(getNewLocation(), getPiece());
         board.addPieceToCaptured(board.getOppositePlayer(getPiece().getSide()), getCapturedPiece());
         // don't need to clear square on board because piece stack on top of it
     }

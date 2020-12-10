@@ -1,10 +1,13 @@
 import model.ChessBoard;
 import model.Square;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.List;
 
 /**
  * This class instantiates a Chess object, which is the model for the game.
@@ -20,11 +23,11 @@ import javax.swing.*;
  * its paintComponent method and the status JLabel).
  */
 @SuppressWarnings("serial")
-public class GameBoard extends JPanel {
+public class GameBoard2 extends JComponent {
+
     private ChessBoard chess; // model for the game
     private JLabel status; // current status text
-    private BoardSquare[][] board2; // board to paint
-    private BoardSquare2[][] board;
+    private BoardSquare[][] board; // board to paint
     private Mode currMode; // curr state in game
     private Square highlightedSquare;
 
@@ -35,7 +38,7 @@ public class GameBoard extends JPanel {
     /**
      * Initializes the game board.
      */
-    public GameBoard(JLabel statusInit) {
+    public GameBoard2(JLabel statusInit) {
         // creates border around the court area, JComponent method
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -55,28 +58,21 @@ public class GameBoard extends JPanel {
     public void reset() {
         // clear panel
         long t1 = System.currentTimeMillis();
-        removeAll();
 
         chess.reset();
         status.setText("White's Turn");
 
         // generate initial colored board
-        board2 = new BoardSquare[8][8];
-        board = new BoardSquare2[8][8];
-        setLayout(new GridLayout(8,8));
+        board = new BoardSquare[8][8];
         for (int r = 0; r < 8; r++) {
             boolean isLight = r%2 == 0;
             for (int c = 0; c < 8; c++) {
-                board2[r][c] = new BoardSquare(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM);
-                board[r][c] = new BoardSquare2(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM, chess, r, c);
+                board[r][c] = new BoardSquare(isLight, SQUARE_DIM, c*SQUARE_DIM, r*SQUARE_DIM);
 
-                add(board[r][c]);
                 isLight = !isLight;
             }
         }
 
-        // resetting doesn't work w/o this and only god knows why
-        revalidate();
         repaint();
         System.out.println((System.currentTimeMillis() - t1)/1000.0);
 
@@ -117,24 +113,26 @@ public class GameBoard extends JPanel {
      * methods.  Consider breaking up your paintComponent logic
      * into multiple methods or classes, like Mushroom of Doom.
      */
-//    @Override
-//    public void paintComponent(Graphics g) {
-//        super.paintComponent(g);
-//
-//        gamePanel.repaint();
-//
-////        long t1 = System.currentTimeMillis();
-////        // Draw board squares
-////        for (int r = 0; r < 8; r++) {
-////            for (int c = 0; c < 8; c++) {
-////                String pieceSpritePath = chess.getSprite(r, c);
-////
-////                board[r][c].draw(g, pieceSpritePath);
-////            }
-////        }
-////        System.out.println((System.currentTimeMillis() - t1)/1000.0);
-//
-//    }
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        long t1 = System.currentTimeMillis();
+        // Draw board squares
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                String pieceSpritePath = chess.getSprite(r, c);
+
+                board[r][c].draw(g, pieceSpritePath);
+            }
+        }
+        System.out.println((System.currentTimeMillis() - t1)/1000.0);
+
+    }
+
+    private void repaintBoardSquare(BoardSquare square) {
+        paintImmediately(square.getxLoc(), square.getyLoc(), square.getDim(), square.getDim());
+    }
 
     /**
      * Returns the size of the game board.
@@ -155,16 +153,16 @@ public class GameBoard extends JPanel {
             // dehighlight previously chosen square if necessary
             if (highlightedSquare != null) {
                 board[highlightedSquare.getR()][highlightedSquare.getC()].dehighlightSquare();
-                board[highlightedSquare.getR()][highlightedSquare.getC()].repaint();
             }
             for (int r = 0; r < 8; r++) {
                 for (int c = 0; c < 8; c++) {
                     if (board[r][c].isMoveChoice()) {
                         board[r][c].setIsNotMoveChoice();
-                        board[r][c].repaint();
                     }
                 }
             }
+
+            // repaint();
         }
 
         public void mousePressed(MouseEvent e) {
@@ -173,13 +171,13 @@ public class GameBoard extends JPanel {
 
             if (chess.canMovePiece(clicked.getR(), clicked.getC())) {
                 board[clicked.getR()][clicked.getC()].highlightSquare();
-                board[clicked.getR()][clicked.getC()].repaint();
+                repaintBoardSquare(board[clicked.getR()][clicked.getC()]);
                 currMode = new MoveEndMode(clicked);
                 highlightedSquare = clicked;
                 List<Square> validMoves = chess.getValidSquares(clicked.getR(), clicked.getC());
                 for (Square s : validMoves) {
                     board[s.getR()][s.getC()].setIsMoveChoice();
-                    board[s.getR()][s.getC()].repaint();
+                    repaintBoardSquare(board[s.getR()][s.getC()]);
                 }
             }
         }
@@ -201,7 +199,7 @@ public class GameBoard extends JPanel {
 
             List<Square> changedSquares = chess.makeMove(start.getR(), start.getC(), clicked.getR(), clicked.getC());
             for (Square s : changedSquares) {
-                board[s.getR()][s.getC()].repaint();
+                repaintBoardSquare(board[s.getR()][s.getC()]);
             }
 
             // is game over?

@@ -5,6 +5,7 @@ import model.pieces.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.*;
 
 public class ChessBoard {
 
@@ -17,7 +18,7 @@ public class ChessBoard {
     private boolean gameState;
 
     // 0 is white, 1 is black
-    private List<List<Piece>> activePieces;
+    private List<Set<Piece>> activePieces;
     private List<List<Piece>> capturedPieces;
 
     // Position of kings on board
@@ -76,13 +77,13 @@ public class ChessBoard {
         // set kings
         kings = new ArrayList<>();
         kings.add(board[7][4]);
-        kings.add(board[0][4]);
+        kings.add(board[0][3]);
 
         // init active list
         activePieces = new ArrayList<>();
 
         // init white active pieces
-        activePieces.add(new ArrayList<>());
+        activePieces.add(new HashSet<>());
         for (int r = 6; r <= 7; r++) {
             for (int c = 0; c < 8; c++) {
                 activePieces.get(0).add(board[r][c]);
@@ -90,7 +91,7 @@ public class ChessBoard {
         }
 
         // init black active pieces
-        activePieces.add(new ArrayList<>());
+        activePieces.add(new HashSet<>());
         for (int r = 0; r <= 1; r++) {
             for (int c = 0; c < 8; c++) {
                 activePieces.get(1).add(board[r][c]);
@@ -133,10 +134,10 @@ public class ChessBoard {
         }
     }
 
-    public List<Square> getChessMoves(int r, int c) {
+    public List<Square> getValidSquares(int r, int c) {
         List<Square> validSquares = new ArrayList<>();
         if (canMovePiece(r, c)) {
-            for (ChessMove m : board[r][c].getChessMoves(this)) {
+            for (ChessMove m : board[r][c].getChessMoves(this, true)) {
                 validSquares.add(m.getNewLocation());
             }
         }
@@ -162,10 +163,12 @@ public class ChessBoard {
 
     public void placePiece(Square loc, Piece p) {
         board[loc.getR()][loc.getC()] = p;
+        activePieces.get(p.getSide()).add(p);
         p.setPosition(loc);
     }
 
     public void removePiece(Square loc) {
+        activePieces.get(getPieceAtSquare(loc).getSide()).remove(getPieceAtSquare(loc));
         board[loc.getR()][loc.getC()] = null;
     }
 
@@ -178,26 +181,20 @@ public class ChessBoard {
 
     // positive value goes up
     public Square getVertical(int side, Square loc, int count) {
-        switch (side) {
-            case 0:
-                return new Square(loc.getR() - count, loc.getC());
-            case 1:
-                return new Square(loc.getR() + count, loc.getC());
-            default:
-                return null;
-        }
+        return switch (side) {
+            case 0 -> new Square(loc.getR() - count, loc.getC());
+            case 1 -> new Square(loc.getR() + count, loc.getC());
+            default -> null;
+        };
     }
 
     // positive value goes right
     public Square getHorizontal(int side, Square loc, int count) {
-        switch (side) {
-            case 0:
-                return new Square(loc.getR(), loc.getC() + count);
-            case 1:
-                return new Square(loc.getR(), loc.getC() - count);
-            default:
-                return null;
-        }
+        return switch (side) {
+            case 0 -> new Square(loc.getR(), loc.getC() + count);
+            case 1 -> new Square(loc.getR(), loc.getC() - count);
+            default -> null;
+        };
     }
 
     public Square getRightDiagonal(int side, Square loc, int count) {
@@ -233,7 +230,10 @@ public class ChessBoard {
             listOfGameMoves.add(m);
             changedSquares.addAll(m.getChangedSquares());
             flipPlayer();
+            numTurns++;
         }
+
+        printBoard();
 
         return changedSquares;
     }
@@ -242,7 +242,7 @@ public class ChessBoard {
 
     public boolean doesPlayerHaveMove(int side) {
         for (Piece p : activePieces.get(side)) {
-            if (p.getChessMoves(this).size() > 0) {
+            if (p.getChessMoves(this, true).size() > 0) {
                 return false;
             }
         }
@@ -273,25 +273,55 @@ public class ChessBoard {
     }
 
     public boolean isPlayerInCheck(int side) {
-        return false;
+        return isSquareThreatened(side, kings.get(side).getSquare());
+    }
 
-//        int opponent = getOppositePlayer(side);
-//
-//        for (Piece p : activePieces.get(opponent)) {
-//            for (ChessMove m : p.getChessMoves(this)) {
-//                // check if king can be captured by any opposing piece
-//                if (m instanceof Capture
-//                        && m.getNewLocation().equals(kings.get(opponent).getSquare())) {
-//                    return true;
-//                }
-//            }
-//        }
-//
-//        return false;
+    public boolean isSquareThreatened(int side, Square loc) {
+        int opponent = getOppositePlayer(side);
+
+        for (Piece p : activePieces.get(opponent)) {
+            for (ChessMove m : p.getChessMoves(this, false)) {
+                // check if square can be captured by any opposing piece
+                // excludes en passant
+                // m.hasCapturedPiece() && <- remove from if
+                if (m.getNewLocation().equals(loc)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public boolean canMovePiece(int r, int c) {
         return board[r][c] != null && board[r][c].getSide() == currentPlayer;
+    }
+
+    private void printBoard() {
+        System.out.println("Turn Number: " + numTurns);
+        for (int r = 0; r < 8; r++) {
+            System.out.print("|");
+            for (int c = 0; c < 8; c++) {
+                if (board[r][c] == null) {
+                    System.out.print("_");
+                } else if(board[r][c] instanceof Pawn) {
+                    System.out.print("P");
+                } else if(board[r][c] instanceof Rook) {
+                    System.out.print("R");
+                } else if(board[r][c] instanceof Bishop) {
+                    System.out.print("B");
+                } else if(board[r][c] instanceof Knight) {
+                    System.out.print("N");
+                } else if(board[r][c] instanceof Queen) {
+                    System.out.print("Q");
+                } else if(board[r][c] instanceof King) {
+                    System.out.print("K");
+                }
+                System.out.print("|");
+            }
+            System.out.println();
+        }
+        System.out.println("---------------------------");
     }
 
     public static void main(String[] args) {

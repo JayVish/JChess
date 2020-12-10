@@ -2,7 +2,9 @@ package model.moves;
 
 import model.ChessBoard;
 import model.Square;
+import model.pieces.Pawn;
 import model.pieces.Piece;
+import model.pieces.Queen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +32,14 @@ public class Translate extends ChessMove {
     @Override
     public void makeMove() {
         p.addMoveToPiece();
-        board.placePiece(getNewLocation(), getPiece());
         board.removePiece(getOldLocation());
+        board.placePiece(getNewLocation(), getPiece());
     }
 
     @Override
     public void undoMove() {
         p.removeMoveFromPiece();
-        board.placePiece(getOldLocation(), getPiece());
         board.removePiece(getNewLocation());
+        board.placePiece(getOldLocation(), getPiece());
     }
 }

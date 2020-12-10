@@ -48,6 +48,10 @@ public abstract class ChessMove {
         return capturedPiece;
     }
 
+    public boolean hasCapturedPiece() {
+        return capturedPiece != null;
+    }
+
     public abstract List<Square> getChangedSquares();
 
     public abstract void makeMove();

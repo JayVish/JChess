@@ -30,14 +30,14 @@ public class PawnTwoStep extends ChessMove {
     @Override
     public void makeMove() {
         p.addMoveToPiece();
-        board.placePiece(getNewLocation(), getPiece());
         board.removePiece(getOldLocation());
+        board.placePiece(getNewLocation(), getPiece());
     }
 
     @Override
     public void undoMove() {
         p.removeMoveFromPiece();
-        board.placePiece(getOldLocation(), getPiece());
         board.removePiece(getNewLocation());
+        board.placePiece(getOldLocation(), getPiece());
     }
 }

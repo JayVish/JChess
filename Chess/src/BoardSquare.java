@@ -28,12 +28,28 @@ public class BoardSquare {
         this.yLoc = yLoc;
     }
 
+    public int getDim() {
+        return dim;
+    }
+
+    public int getxLoc() {
+        return xLoc;
+    }
+
+    public int getyLoc() {
+        return yLoc;
+    }
+
     public void highlightSquare() {
         currColor = new Color(138, 151, 111);
     }
 
     public void setIsMoveChoice() {
         isMoveChoice = true;
+    }
+
+    public boolean isMoveChoice() {
+        return isMoveChoice;
     }
 
     public void setIsNotMoveChoice() {

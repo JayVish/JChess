@@ -25,19 +25,19 @@ public class Queen extends Piece {
     }
 
     @Override
-    public List<ChessMove> getChessMoves(ChessBoard board) {
+    public List<ChessMove> getChessMoves(ChessBoard board, boolean isCheckConcern) {
         List<ChessMove> moves = new ArrayList<>();
-        for (ChessMove m : getTranslateMoves(board)) {
+        for (ChessMove m : getTranslateMoves(board, isCheckConcern)) {
             moves.add(m);
         }
-        for (ChessMove m : getCaptureMoves(board)) {
+        for (ChessMove m : getCaptureMoves(board, isCheckConcern)) {
             moves.add(m);
         }
 
         return moves;
     }
 
-    public List<ChessMove> getTranslateMoves(ChessBoard board) {
+    public List<ChessMove> getTranslateMoves(ChessBoard board, boolean isCheckConcern) {
         List<ChessMove> validMoves = new ArrayList<>();
         int moveAmount;
         Square currSquare;
@@ -49,8 +49,7 @@ public class Queen extends Piece {
         currSquare = board.getRightDiagonal(getSide(), getSquare(), moveAmount);
         while (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare) == null) {
             currMove = new Translate(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
             moveAmount++;
             currSquare = board.getRightDiagonal(getSide(), getSquare(), moveAmount);
         }
@@ -60,8 +59,7 @@ public class Queen extends Piece {
         currSquare = board.getRightDiagonal(getSide(), getSquare(), moveAmount);
         while (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare) == null) {
             currMove = new Translate(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
             moveAmount--;
             currSquare = board.getRightDiagonal(getSide(), getSquare(), moveAmount);
         }
@@ -71,8 +69,7 @@ public class Queen extends Piece {
         currSquare = board.getLeftDiagonal(getSide(), getSquare(), moveAmount);
         while (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare) == null) {
             currMove = new Translate(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
             moveAmount++;
             currSquare = board.getLeftDiagonal(getSide(), getSquare(), moveAmount);
         }
@@ -82,8 +79,7 @@ public class Queen extends Piece {
         currSquare = board.getLeftDiagonal(getSide(), getSquare(), moveAmount);
         while (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare) == null) {
             currMove = new Translate(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
             moveAmount--;
             currSquare = board.getLeftDiagonal(getSide(), getSquare(), moveAmount);
         }
@@ -94,8 +90,7 @@ public class Queen extends Piece {
         currSquare = board.getVertical(getSide(), getSquare(), moveAmount);
         while (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare) == null) {
             currMove = new Translate(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
             moveAmount++;
             currSquare = board.getVertical(getSide(), getSquare(), moveAmount);
         }
@@ -105,8 +100,7 @@ public class Queen extends Piece {
         currSquare = board.getVertical(getSide(), getSquare(), moveAmount);
         while (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare) == null) {
             currMove = new Translate(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
             moveAmount--;
             currSquare = board.getVertical(getSide(), getSquare(), moveAmount);
         }
@@ -116,8 +110,7 @@ public class Queen extends Piece {
         currSquare = board.getHorizontal(getSide(), getSquare(), moveAmount);
         while (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare) == null) {
             currMove = new Translate(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
             moveAmount++;
             currSquare = board.getHorizontal(getSide(), getSquare(), moveAmount);
         }
@@ -127,8 +120,7 @@ public class Queen extends Piece {
         currSquare = board.getHorizontal(getSide(), getSquare(), moveAmount);
         while (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare) == null) {
             currMove = new Translate(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
             moveAmount--;
             currSquare = board.getHorizontal(getSide(), getSquare(), moveAmount);
         }
@@ -137,7 +129,7 @@ public class Queen extends Piece {
         return validMoves;
     }
 
-    public List<ChessMove> getCaptureMoves(ChessBoard board) {
+    public List<ChessMove> getCaptureMoves(ChessBoard board, boolean isCheckConcern) {
         List<ChessMove> validMoves = new ArrayList<>();
         int moveAmount;
         Square currSquare;
@@ -153,8 +145,7 @@ public class Queen extends Piece {
         }
         if (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare).getSide() != getSide()) {
             currMove = new Capture(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
 
         }
 
@@ -167,8 +158,7 @@ public class Queen extends Piece {
         }
         if (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare).getSide() != getSide()) {
             currMove = new Capture(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
         }
 
         // NW
@@ -180,8 +170,7 @@ public class Queen extends Piece {
         }
         if (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare).getSide() != getSide()) {
             currMove = new Capture(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
         }
 
         // SE
@@ -193,8 +182,7 @@ public class Queen extends Piece {
         }
         if (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare).getSide() != getSide()) {
             currMove = new Capture(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
         }
 
         // parallel moves
@@ -207,8 +195,7 @@ public class Queen extends Piece {
         }
         if (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare).getSide() != getSide()) {
             currMove = new Capture(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
 
         }
 
@@ -221,8 +208,7 @@ public class Queen extends Piece {
         }
         if (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare).getSide() != getSide()) {
             currMove = new Capture(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
         }
 
         // E
@@ -234,8 +220,7 @@ public class Queen extends Piece {
         }
         if (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare).getSide() != getSide()) {
             currMove = new Capture(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
         }
 
         // W
@@ -247,10 +232,14 @@ public class Queen extends Piece {
         }
         if (board.inBounds(currSquare) && board.getPieceAtSquare(currSquare).getSide() != getSide()) {
             currMove = new Capture(this, currSquare, board);
-            if (!currMove.createsCheck())
-                validMoves.add(currMove);
+            addMove(validMoves, currMove, isCheckConcern);
         }
 
         return validMoves;
+    }
+
+    private void addMove(List<ChessMove> validMoves, ChessMove currMove, boolean isCheckConcern) {
+        if (!isCheckConcern || !currMove.createsCheck())
+            validMoves.add(currMove);
     }
 }

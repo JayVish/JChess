@@ -68,10 +68,10 @@ public abstract class Piece {
         }
     }
 
-    public abstract List<ChessMove> getChessMoves(ChessBoard board);
+    public abstract List<ChessMove> getChessMoves(ChessBoard board, boolean isCheckConcern);
 
     public ChessMove makeChessMove(ChessBoard board, Square target) {
-        List<ChessMove> possibleMoves = getChessMoves(board);
+        List<ChessMove> possibleMoves = getChessMoves(board, true);
         for (ChessMove m : possibleMoves) {
             if (m.getNewLocation().equals(target)) {
                 m.makeMove();

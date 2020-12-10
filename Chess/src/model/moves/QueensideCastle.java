@@ -7,24 +7,31 @@ import model.pieces.Piece;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Castle extends ChessMove {
+public class QueensideCastle extends ChessMove {
     private ChessBoard board;
     private Piece castledRook;
     private Square newKingPosition;
     private Square newRookPosition;
     private Piece king;
 
-    public Castle(Piece king, Piece rook, Square target,
-                  Square newKingPosition, Square newRookPosition, ChessBoard board) {
+    public QueensideCastle(Piece king, Piece rook, Square target, ChessBoard board) {
         super(king, target, board);
         this.castledRook = rook;
 
-        this.newKingPosition = newKingPosition;
-        this.newRookPosition = newRookPosition;
-//        this.newKingPosition = board.getHorizontal(king.getSide(), king.getSquare(), -2);
-//        this.newRookPosition = board.getHorizontal(castledRook.getSide(), castledRook.getSquare(), 3);
+        this.newKingPosition = board.getHorizontal(king.getSide(), king.getSquare(), -2);
+        this.newRookPosition = board.getHorizontal(castledRook.getSide(), castledRook.getSquare(), 3);
         this.king = king;
         this.board = board;
+    }
+
+    @Override
+    public List<Square> getChangedSquares() {
+        List<Square> updatedSquares = new ArrayList<>();
+        for (int count = 0; count >= -4; count--) {
+            updatedSquares.add(board.getHorizontal(king.getSide(), getOldLocation(), count));
+        }
+
+        return updatedSquares;
     }
 
     @Override

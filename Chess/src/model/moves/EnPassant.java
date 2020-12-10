@@ -32,10 +32,10 @@ public class EnPassant extends ChessMove {
     @Override
     public void makeMove() {
         p.addMoveToPiece();
-        board.placePiece(getNewLocation(), getPiece());
         board.removePiece(getOldLocation());
-        board.addPieceToCaptured(board.getOppositePlayer(getPiece().getSide()), getCapturedPiece());
         board.removePiece(getCapturedPiece().getSquare());
+        board.placePiece(getNewLocation(), getPiece());
+        board.addPieceToCaptured(board.getOppositePlayer(getPiece().getSide()), getCapturedPiece());
     }
 
     @Override

@@ -21,6 +21,15 @@ public class Promotion extends ChessMove {
         this.board = board;
     }
 
+    public Promotion(Piece p, Piece capturedPiece, Square target, ChessBoard board) {
+        super(p, target, board);
+        setCapturedPiece(capturedPiece);
+        this.p = p;
+        promotedPiece = new Queen(getPiece().getSide(), getNewLocation());
+
+        this.board = board;
+    }
+
     @Override
     public List<Square> getChangedSquares() {
         List<Square> updatedSquares = new ArrayList<>();
@@ -35,6 +44,9 @@ public class Promotion extends ChessMove {
         p.addMoveToPiece();
         board.removePiece(getOldLocation());
         board.placePiece(getNewLocation(), promotedPiece);
+        if (hasCapturedPiece()) {
+            board.addPieceToCaptured(board.getOppositePlayer(getPiece().getSide()), getCapturedPiece());
+        }
     }
 
     @Override
@@ -42,5 +54,12 @@ public class Promotion extends ChessMove {
         p.removeMoveFromPiece();
         board.removePiece(promotedPiece.getSquare());
         board.placePiece(getOldLocation(), getPiece());
+        if (hasCapturedPiece()) {
+            board.placePiece(getNewLocation(), getCapturedPiece());
+            board.removePieceFromCaptured(board.getOppositePlayer(getPiece().getSide()), getCapturedPiece());
+        }
+        // need to undo prior move (translate, capture) that got you here as well
+        // there must have been a prior move to get here
+        // board.getLastMove().undoMove();
     }
 }
